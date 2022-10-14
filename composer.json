@@ -1,0 +1,41 @@
+{
+  "name": "kirameki/utils",
+  "description": "Utility Classes for PHP",
+  "type": "library",
+  "license": "MIT",
+  "require": {
+    "php": ">= 8.1",
+    "webmozart/assert": "^1.1"
+  },
+  "require-dev": {
+    "phpstan/extension-installer": "^1.1",
+    "phpstan/phpstan": "^1.7",
+    "phpstan/phpstan-webmozart-assert": "^1.1",
+    "phpunit/phpunit": "~9.0",
+    "symfony/var-dumper": "^6"
+  },
+  "autoload": {
+    "psr-4": {
+      "Kirameki\\Core\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\Kirameki\\Core\\": "tests/src/"
+    }
+  },
+  "config": {
+    "discard-changes": true,
+    "preferred-install": "dist",
+    "sort-packages": true,
+    "allow-plugins": {
+      "phpstan/extension-installer": true
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "scripts": {
+    "test": "vendor/bin/phpunit --coverage-text",
+    "analyze": "vendor/bin/phpstan analyse --memory-limit 1G"
+  }
+}
