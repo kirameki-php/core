@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Kirameki\Core\Debugging\VarDumper\Processors;
+namespace Kirameki\Core\Debugging\VarDumper\Decorators;
 
 use Kirameki\Core\Cli\Ansi;
 use Kirameki\Core\Cli\Ansi\Color;
 use function str_repeat;
 use const PHP_EOL;
 
-class CliProcessor implements Processor
+class CliDecorator implements Decorator
 {
     public function __construct(
         protected Ansi $ansi = new Ansi(),
@@ -60,14 +60,9 @@ class CliProcessor implements Processor
      * @param string $id
      * @return string
      */
-    public function objectId(string $id): string
+    public function comment(string $id): string
     {
         return $this->withColor($id, Color::Gray);
-    }
-
-    public function comment(string $value): string
-    {
-        return $value;
     }
 
     /**
@@ -103,7 +98,7 @@ class CliProcessor implements Processor
      * @param Ansi\Color $color
      * @return string
      */
-    public function withColor(string $value, Ansi\Color $color): string
+    protected function withColor(string $value, Ansi\Color $color): string
     {
         return $this->ansi
             ->buffer()

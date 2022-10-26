@@ -42,7 +42,9 @@ class DumpTest extends TestCase
             SimpleBackedEnum::Option2,
         ];
 
-        $vd = new VarDumper(new VarDumper\Processors\CliProcessor());
+        $decorator = new VarDumper\Decorators\CliDecorator();
+        $formatter = new VarDumper\Formatter($decorator);
+        $vd = new VarDumper($decorator, $formatter);
         $vd->dump($vars);
     }
 }
