@@ -3,7 +3,9 @@
 namespace Tests\Kirameki\Core;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
+use function dump;
+use const STDIN;
 
-abstract class TestCase extends BaseTestCase
+class TestCase extends BaseTestCase
 {
 }
