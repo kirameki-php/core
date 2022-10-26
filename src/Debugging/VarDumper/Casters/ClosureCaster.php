@@ -10,9 +10,10 @@ class ClosureCaster extends Caster
     /**
      * @param Closure $var
      * @param int $id
+     * @param int $depth
      * @return string
      */
-    public function cast(object $var, int $id): string
+    public function cast(object $var, int $id, int $depth): string
     {
         $ref = new ReflectionFunction($var);
 

@@ -8,9 +8,8 @@ use Kirameki\Core\Debugging\VarDumper\Casters\Caster;
 use Kirameki\Core\Debugging\VarDumper\Casters\ClosureCaster;
 use Kirameki\Core\Debugging\VarDumper\Casters\DateTimeCaster;
 use Kirameki\Core\Debugging\VarDumper\Casters\EnumCaster;
+use Kirameki\Core\Debugging\VarDumper\Casters\ObjectCaster;
 use Kirameki\Core\Debugging\VarDumper\Decorators\Decorator;
-use ReflectionClass;
-use ReflectionProperty;
 use UnitEnum;
 use function array_key_exists;
 use function count;
@@ -39,7 +38,7 @@ class Formatter
     protected array $casterResolvers = [];
 
     /**
-     * @var array<class-string, ?Caster>
+     * @var array<class-string, Caster>
      */
     protected array $resolvedCasters = [];
 
@@ -125,57 +124,6 @@ class Formatter
     }
 
     /**
-     * @param object $var
-     * @param int $depth
-     * @return string
-     */
-    protected function formatObject(object $var, int $depth): string
-    {
-        $id = spl_object_id($var);
-
-        if ($caster = $this->getCaster($var)) {
-            return $caster->cast($var, $id);
-        }
-
-        $properties = (new ReflectionClass($var))->getProperties(
-            ReflectionProperty::IS_STATIC |
-            ReflectionProperty::IS_PUBLIC |
-            ReflectionProperty::IS_PROTECTED |
-            ReflectionProperty::IS_PRIVATE,
-        );
-
-        $summary =
-            $this->decorator->type($var::class) . ' ' .
-            $this->decorator->comment("#{$id}");
-
-        if (count($properties) === 0) {
-            return $summary;
-        }
-
-        return $this->block(
-            "{$summary} {",
-            "}",
-            $depth,
-            function (int $depth) use ($var, $properties) {
-                $string = '';
-                foreach ($properties as $prop) {
-                    $access = ($prop->getModifiers() & ReflectionProperty::IS_STATIC)
-                        ? 'static '
-                        : '';
-                    $string .= $this->decorator->line(
-                        $this->decorator->parameterKey($access . $prop->getName()) .
-                        $this->decorator->parameterDelimiter(':') . ' ' .
-                        $this->format($prop->getValue($var), $depth) .
-                        $this->decorator->parameterDelimiter(','),
-                        $depth,
-                    );
-                }
-                return $string;
-            },
-        );
-    }
-
-    /**
      * @param array<mixed> $var
      * @param int $depth
      * @return string
@@ -204,6 +152,17 @@ class Formatter
                 return $string;
             },
         );
+    }
+
+    /**
+     * @param object $var
+     * @param int $depth
+     * @return string
+     */
+    protected function formatObject(object $var, int $depth): string
+    {
+        $id = spl_object_id($var);
+        return $this->getCaster($var)->cast($var, $id, $depth);
     }
 
     /**
@@ -271,9 +230,9 @@ class Formatter
 
     /**
      * @param object $var
-     * @return Caster|null
+     * @return Caster
      */
-    protected function getCaster(object $var): ?Caster
+    protected function getCaster(object $var): Caster
     {
         $class = $var::class;
 
@@ -296,6 +255,6 @@ class Formatter
         }
 
         // If no match is found set it to null and let it run the default.
-        return $this->resolvedCasters[$class] = null;
+        return $this->resolvedCasters[$class] = new ObjectCaster($this->decorator, $this);
     }
 }

@@ -17,7 +17,8 @@ abstract class Caster
     /**
      * @param object $var
      * @param int $id
+     * @param int $depth
      * @return string
      */
-    abstract public function cast(object $var, int $id): string;
+    abstract public function cast(object $var, int $id, int $depth): string;
 }
