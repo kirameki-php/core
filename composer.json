@@ -1,6 +1,6 @@
 {
-  "name": "south-pointe/exception",
-  "description": "A exception extension to PHP",
+  "name": "south-pointe/core",
+  "description": "A core library for South Pointe Framework",
   "type": "library",
   "license": "MIT",
   "require": {
