@@ -1,19 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Tests\SouthPointe\Core\Exception;
+namespace Tests\SouthPointe\Core\Exceptions;
 
 use Exception as BaseException;
 use JsonSerializable;
 use RuntimeException;
-use SouthPointe\Core\Exception\ContextualThrowable;
-use SouthPointe\Core\Exception\UnreachableException;
+use SouthPointe\Core\Exceptions\ContextualThrowable;
+use SouthPointe\Core\Exceptions\LogicException;
 use function random_int;
 
-class UnreachableExceptionTest extends TestCase
+class LogicExceptionTest extends TestCase
 {
     public function test_construct(): void
     {
-        $exception = new UnreachableException();
+        $exception = new LogicException();
         self::assertInstanceOf(BaseException::class, $exception);
         self::assertInstanceOf(ContextualThrowable::class, $exception);
         self::assertInstanceOf(JsonSerializable::class, $exception);
@@ -22,7 +22,7 @@ class UnreachableExceptionTest extends TestCase
 
     public function test_construct_with_context(): void
     {
-        $exception = new UnreachableException('t', ['a' => 1, 'b' => 2]);
+        $exception = new LogicException('t', ['a' => 1, 'b' => 2]);
         self::assertEquals('t', $exception->getMessage());
         self::assertEquals(['a' => 1, 'b' => 2], $exception->getContext());
     }
@@ -33,7 +33,7 @@ class UnreachableExceptionTest extends TestCase
         $context = [];
         $code = random_int(0, 100);
         $prev = new RuntimeException('r');
-        $exception = new UnreachableException($message, $context, $code, $prev);
+        $exception = new LogicException($message, $context, $code, $prev);
         self::assertEquals($message, $exception->getMessage());
         self::assertEquals($code, $exception->getCode());
         self::assertEquals($context, $exception->getContext());
@@ -42,7 +42,7 @@ class UnreachableExceptionTest extends TestCase
 
     public function test_construct_with_null_context(): void
     {
-        $exception = new UnreachableException('t', null);
+        $exception = new LogicException('t', null);
         self::assertEquals('t', $exception->getMessage());
         self::assertEquals(null, $exception->getContext());
     }

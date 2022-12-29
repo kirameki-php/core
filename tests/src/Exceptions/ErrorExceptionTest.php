@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Tests\SouthPointe\Core\Exception;
+namespace Tests\SouthPointe\Core\Exceptions;
 
 use ErrorException as BaseException;
 use JsonSerializable;
-use SouthPointe\Core\Exception\ContextualThrowable;
-use SouthPointe\Core\Exception\ErrorException;
+use SouthPointe\Core\Exceptions\ContextualThrowable;
+use SouthPointe\Core\Exceptions\ErrorException;
 use function array_keys;
 use const E_ERROR;
 use const E_WARNING;

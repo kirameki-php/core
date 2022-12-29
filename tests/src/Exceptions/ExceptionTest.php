@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Tests\SouthPointe\Core\Exception;
+namespace Tests\SouthPointe\Core\Exceptions;
 
 use Exception as BaseException;
 use JsonSerializable;
 use RuntimeException;
-use SouthPointe\Core\Exception\ContextualThrowable;
-use SouthPointe\Core\Exception\Exception;
+use SouthPointe\Core\Exceptions\ContextualThrowable;
+use SouthPointe\Core\Exceptions\Exception;
 use function random_int;
 
 class ExceptionTest extends TestCase

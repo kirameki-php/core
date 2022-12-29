@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace SouthPointe\Core\Exception;
+namespace SouthPointe\Core\Exceptions;
 
 use JsonSerializable;
 use LogicException as BaseException;

@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Tests\SouthPointe\Core\Exception;
+namespace Tests\SouthPointe\Core\Exceptions;
 
-use SouthPointe\Core\Exception\Exception;
+use SouthPointe\Core\Exceptions\Exception;
 
 class HandlesContextTest extends TestCase
 {

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Tests\SouthPointe\Core\Exception;
+namespace Tests\SouthPointe\Core\Exceptions;
 
 use RuntimeException;
-use SouthPointe\Core\Exception\Exception;
+use SouthPointe\Core\Exceptions\Exception;
 use function array_keys;
 
 class HandlesJsonTest extends TestCase

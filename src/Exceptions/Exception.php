@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace SouthPointe\Core\Exception;
+namespace SouthPointe\Core\Exceptions;
 
+use Exception as BaseException;
 use JsonSerializable;
-use RuntimeException as BaseException;
 use Throwable;
 
-class RuntimeException extends BaseException implements ContextualThrowable, JsonSerializable
+class Exception extends BaseException implements ContextualThrowable, JsonSerializable
 {
     use WithContext;
     use WithJsonSerialize;
