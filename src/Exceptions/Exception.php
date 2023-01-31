@@ -2,7 +2,6 @@
 
 namespace SouthPointe\Core\Exceptions;
 
-use Doctrine\Instantiator\Exception\ExceptionInterface;
 use Exception as BaseException;
 use JsonSerializable;
 use Throwable;
@@ -22,7 +21,7 @@ class Exception extends BaseException implements Exceptionable, JsonSerializable
         string $message = "",
         ?iterable $context = null,
         int $code = 0,
-        ?Throwable $previous = null
+        ?Throwable $previous = null,
     )
     {
         parent::__construct($message, $code, $previous);

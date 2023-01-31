@@ -21,7 +21,7 @@ class RuntimeException extends BaseException implements Exceptionable, JsonSeria
         string $message = "",
         ?iterable $context = null,
         int $code = 0,
-        ?Throwable $previous = null
+        ?Throwable $previous = null,
     )
     {
         parent::__construct($message, $code, $previous);

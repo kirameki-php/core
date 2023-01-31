@@ -21,7 +21,7 @@ class LogicException extends BaseException implements Exceptionable, JsonSeriali
         string $message = "",
         ?iterable $context = null,
         int $code = 0,
-        ?Throwable $previous = null
+        ?Throwable $previous = null,
     )
     {
         parent::__construct($message, $code, $previous);
