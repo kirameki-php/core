@@ -2,11 +2,12 @@
 
 namespace SouthPointe\Core\Exceptions;
 
+use Doctrine\Instantiator\Exception\ExceptionInterface;
 use Exception as BaseException;
 use JsonSerializable;
 use Throwable;
 
-class Exception extends BaseException implements ContextualThrowable, JsonSerializable
+class Exception extends BaseException implements Exceptionable, JsonSerializable
 {
     use WithContext;
     use WithJsonSerialize;

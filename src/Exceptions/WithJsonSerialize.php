@@ -28,7 +28,7 @@ trait WithJsonSerialize
         $data['line'] = $throwable->getLine();
         $data['trace'] = $throwable->getTrace();
 
-        if ($throwable instanceof ContextualThrowable) {
+        if ($throwable instanceof Exceptionable) {
             $data['context'] = $this->getContext();
         }
 

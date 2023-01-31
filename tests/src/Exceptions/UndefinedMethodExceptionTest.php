@@ -5,7 +5,7 @@ namespace Tests\SouthPointe\Core\Exceptions;
 use Exception as BaseException;
 use JsonSerializable;
 use RuntimeException;
-use SouthPointe\Core\Exceptions\ContextualThrowable;
+use SouthPointe\Core\Exceptions\Exceptionable;
 use SouthPointe\Core\Exceptions\UndefinedMethodException;
 use function random_int;
 
@@ -15,7 +15,7 @@ class UndefinedMethodExceptionTest extends TestCase
     {
         $exception = new UndefinedMethodException();
         self::assertInstanceOf(BaseException::class, $exception);
-        self::assertInstanceOf(ContextualThrowable::class, $exception);
+        self::assertInstanceOf(Exceptionable::class, $exception);
         self::assertInstanceOf(JsonSerializable::class, $exception);
         self::assertNull($exception->getContext());
     }

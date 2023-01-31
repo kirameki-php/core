@@ -5,8 +5,8 @@ namespace Tests\SouthPointe\Core\Exceptions;
 use Exception as BaseException;
 use JsonSerializable;
 use RuntimeException;
-use SouthPointe\Core\Exceptions\ContextualThrowable;
 use SouthPointe\Core\Exceptions\Exception;
+use SouthPointe\Core\Exceptions\Exceptionable;
 use function random_int;
 
 class ExceptionTest extends TestCase
@@ -15,7 +15,7 @@ class ExceptionTest extends TestCase
     {
         $exception = new Exception();
         self::assertInstanceOf(BaseException::class, $exception);
-        self::assertInstanceOf(ContextualThrowable::class, $exception);
+        self::assertInstanceOf(Exceptionable::class, $exception);
         self::assertInstanceOf(JsonSerializable::class, $exception);
         self::assertNull($exception->getContext());
     }

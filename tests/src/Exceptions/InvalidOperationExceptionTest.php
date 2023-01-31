@@ -3,7 +3,7 @@
 namespace Tests\SouthPointe\Core\Exceptions;
 
 use JsonSerializable;
-use SouthPointe\Core\Exceptions\ContextualThrowable;
+use SouthPointe\Core\Exceptions\Exceptionable;
 use SouthPointe\Core\Exceptions\InvalidOperationException;
 use SouthPointe\Core\Exceptions\RuntimeException;
 use function random_int;
@@ -14,7 +14,7 @@ class InvalidOperationExceptionTest extends TestCase
     {
         $exception = new InvalidOperationException();
         self::assertInstanceOf(RuntimeException::class, $exception);
-        self::assertInstanceOf(ContextualThrowable::class, $exception);
+        self::assertInstanceOf(Exceptionable::class, $exception);
         self::assertInstanceOf(JsonSerializable::class, $exception);
         self::assertNull($exception->getContext());
     }

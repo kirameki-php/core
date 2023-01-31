@@ -6,7 +6,7 @@ use JsonSerializable;
 use LogicException as BaseException;
 use Throwable;
 
-class LogicException extends BaseException implements ContextualThrowable, JsonSerializable
+class LogicException extends BaseException implements Exceptionable, JsonSerializable
 {
     use WithContext;
     use WithJsonSerialize;

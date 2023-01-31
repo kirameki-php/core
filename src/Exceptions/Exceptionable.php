@@ -2,7 +2,9 @@
 
 namespace SouthPointe\Core\Exceptions;
 
-interface ContextualThrowable
+use Throwable;
+
+interface Exceptionable extends Throwable
 {
     /**
      * @return array<string, mixed>|null

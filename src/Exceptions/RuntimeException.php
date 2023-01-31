@@ -6,7 +6,7 @@ use JsonSerializable;
 use RuntimeException as BaseException;
 use Throwable;
 
-class RuntimeException extends BaseException implements ContextualThrowable, JsonSerializable
+class RuntimeException extends BaseException implements Exceptionable, JsonSerializable
 {
     use WithContext;
     use WithJsonSerialize;

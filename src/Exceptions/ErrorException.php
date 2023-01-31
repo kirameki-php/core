@@ -5,7 +5,7 @@ namespace SouthPointe\Core\Exceptions;
 use ErrorException as BaseException;
 use JsonSerializable;
 
-class ErrorException extends BaseException implements ContextualThrowable, JsonSerializable
+class ErrorException extends BaseException implements Exceptionable, JsonSerializable
 {
     use WithContext;
 

@@ -4,8 +4,8 @@ namespace Tests\SouthPointe\Core\Exceptions;
 
 use ErrorException as BaseException;
 use JsonSerializable;
-use SouthPointe\Core\Exceptions\ContextualThrowable;
 use SouthPointe\Core\Exceptions\ErrorException;
+use SouthPointe\Core\Exceptions\Exceptionable;
 use function array_keys;
 use const E_ERROR;
 use const E_WARNING;
@@ -16,7 +16,7 @@ class ErrorExceptionTest extends TestCase
     {
         $exception = new ErrorException('test', E_ERROR, __FILE__, __LINE__);
         self::assertInstanceOf(BaseException::class, $exception);
-        self::assertInstanceOf(ContextualThrowable::class, $exception);
+        self::assertInstanceOf(Exceptionable::class, $exception);
         self::assertInstanceOf(JsonSerializable::class, $exception);
         self::assertNull($exception->getContext());
     }
