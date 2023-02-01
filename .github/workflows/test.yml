@@ -4,15 +4,15 @@ jobs:
   phpunit:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: php-actions/composer@v6
-    - uses: php-actions/phpunit@v3
+    - uses: actions/checkout@latest
+    - uses: php-actions/composer@latest
+    - uses: php-actions/phpunit@latest
       env:
         XDEBUG_MODE: coverage
       with:
         bootstrap: vendor/autoload.php
         configuration: phpunit.xml
-        php_version: "8.1"
+        php_version: latest
         php_extensions: xdebug
         args: --coverage-clover ./coverage.xml
     - uses: codecov/codecov-action@v3
