@@ -5,6 +5,7 @@ namespace Tests\SouthPointe\Core\Exceptions;
 use JsonSerializable;
 use SouthPointe\Core\Exceptions\Exceptionable;
 use SouthPointe\Core\Exceptions\InvalidArgumentException;
+use SouthPointe\Core\Exceptions\LogicException;
 use SouthPointe\Core\Exceptions\RuntimeException;
 use function random_int;
 
@@ -13,7 +14,7 @@ class InvalidArgumentExceptionTest extends TestCase
     public function test_construct(): void
     {
         $exception = new InvalidArgumentException();
-        self::assertInstanceOf(RuntimeException::class, $exception);
+        self::assertInstanceOf(LogicException::class, $exception);
         self::assertInstanceOf(Exceptionable::class, $exception);
         self::assertInstanceOf(JsonSerializable::class, $exception);
         self::assertNull($exception->getContext());
