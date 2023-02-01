@@ -5,7 +5,6 @@ namespace Tests\SouthPointe\Core\Exceptions;
 use JsonSerializable;
 use SouthPointe\Core\Exceptions\Exceptionable;
 use SouthPointe\Core\Exceptions\InvalidArgumentException;
-use SouthPointe\Core\Exceptions\InvalidOperationException;
 use SouthPointe\Core\Exceptions\RuntimeException;
 use function random_int;
 
