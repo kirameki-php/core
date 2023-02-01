@@ -12,8 +12,7 @@ jobs:
       with:
         bootstrap: vendor/autoload.php
         configuration: phpunit.xml
-        php_version: latest
-        php_extensions: xdebug
+        php_extensions: mbstring xdebug
         args: --coverage-clover ./coverage.xml
     - uses: codecov/codecov-action@v3
       with:
