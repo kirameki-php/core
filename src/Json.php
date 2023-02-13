@@ -2,7 +2,8 @@
 
 namespace SouthPointe\Core;
 
-use JsonException;
+use JsonException as PhpJsonException;
+use SouthPointe\Core\Exceptions\JsonException;
 use function json_decode;
 use function json_encode;
 use const JSON_PRESERVE_ZERO_FRACTION;
@@ -40,7 +41,16 @@ class Json
             $options |= JSON_PRETTY_PRINT;
         }
 
-        return json_encode($data, $options | JSON_THROW_ON_ERROR);
+        try {
+            return json_encode($data, $options | JSON_THROW_ON_ERROR);
+        } catch (PhpJsonException $e) {
+            throw new JsonException($e->getMessage(), [
+                'type' => __FUNCTION__,
+                'data' => $data,
+                'options' => $options,
+                'formatted' => $formatted,
+            ], $e->getCode(), $e->getPrevious());
+        }
     }
 
     /**
@@ -59,7 +69,14 @@ class Json
      */
     public static function decode(string $json): mixed
     {
-        return json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        try {
+            return json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        } catch (PhpJsonException $e) {
+            throw new JsonException($e->getMessage(), [
+                'type' => __FUNCTION__,
+                'json' => $json,
+            ], $e->getCode(), $e->getPrevious());
+        }
     }
 
     /**
@@ -83,7 +100,7 @@ class Json
         try {
             json_decode($json, true, 512, JSON_THROW_ON_ERROR);
         }
-        catch (JsonException) {
+        catch (PhpJsonException) {
             return false;
         }
         return true;
