@@ -2,8 +2,8 @@
 
 namespace Tests\SouthPointe\Core\Exceptions;
 
+use Kirameki\Core\Exceptions\Exception;
 use RuntimeException;
-use SouthPointe\Core\Exceptions\Exception;
 use function array_keys;
 
 class HandlesJsonTest extends TestCase

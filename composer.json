@@ -1,5 +1,5 @@
 {
-  "name": "south-pointe/core",
+  "name": "kirameki/core",
   "description": "A core library for South Pointe Framework",
   "type": "library",
   "license": "MIT",
@@ -13,7 +13,7 @@
   },
   "autoload": {
     "psr-4": {
-      "SouthPointe\\Core\\": "src/"
+      "Kirameki\\Core\\": "src/"
     },
     "files": [
       "src/functions.php"
@@ -21,7 +21,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Tests\\SouthPointe\\Core\\": "tests/src/"
+      "Tests\\Kirameki\\Core\\": "tests/src/"
     }
   },
   "config": {

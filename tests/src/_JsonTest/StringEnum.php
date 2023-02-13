@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Tests\SouthPointe\Core\_JsonTest;
+namespace Tests\Kirameki\Core\_JsonTest;
 
 enum StringEnum: string
 {

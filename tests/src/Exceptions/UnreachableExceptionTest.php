@@ -4,9 +4,9 @@ namespace Tests\SouthPointe\Core\Exceptions;
 
 use Exception as BaseException;
 use JsonSerializable;
+use Kirameki\Core\Exceptions\Exceptionable;
+use Kirameki\Core\Exceptions\UnreachableException;
 use RuntimeException;
-use SouthPointe\Core\Exceptions\Exceptionable;
-use SouthPointe\Core\Exceptions\UnreachableException;
 use function random_int;
 
 class UnreachableExceptionTest extends TestCase

@@ -4,9 +4,9 @@ namespace Tests\SouthPointe\Core\Exceptions;
 
 use Exception as BaseException;
 use JsonSerializable;
+use Kirameki\Core\Exceptions\Exceptionable;
+use Kirameki\Core\Exceptions\LogicException;
 use RuntimeException;
-use SouthPointe\Core\Exceptions\Exceptionable;
-use SouthPointe\Core\Exceptions\LogicException;
 use function random_int;
 
 class LogicExceptionTest extends TestCase

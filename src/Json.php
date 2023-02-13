@@ -3,7 +3,7 @@
 namespace SouthPointe\Core;
 
 use JsonException as PhpJsonException;
-use SouthPointe\Core\Exceptions\JsonException;
+use Kirameki\Core\Exceptions\JsonException;
 use function json_decode;
 use function json_encode;
 use const JSON_PRESERVE_ZERO_FRACTION;

@@ -3,10 +3,10 @@
 namespace Tests\SouthPointe\Core\Exceptions;
 
 use JsonSerializable;
-use SouthPointe\Core\Exceptions\Exceptionable;
-use SouthPointe\Core\Exceptions\InvalidArgumentException;
-use SouthPointe\Core\Exceptions\LogicException;
-use SouthPointe\Core\Exceptions\RuntimeException;
+use Kirameki\Core\Exceptions\Exceptionable;
+use Kirameki\Core\Exceptions\InvalidArgumentException;
+use Kirameki\Core\Exceptions\LogicException;
+use Kirameki\Core\Exceptions\RuntimeException;
 use function random_int;
 
 class InvalidArgumentExceptionTest extends TestCase

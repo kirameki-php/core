@@ -4,8 +4,8 @@ namespace Tests\SouthPointe\Core\Exceptions;
 
 use ErrorException as BaseException;
 use JsonSerializable;
-use SouthPointe\Core\Exceptions\ErrorException;
-use SouthPointe\Core\Exceptions\Exceptionable;
+use Kirameki\Core\Exceptions\ErrorException;
+use Kirameki\Core\Exceptions\Exceptionable;
 use function array_keys;
 use const E_ERROR;
 use const E_WARNING;

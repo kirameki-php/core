@@ -2,7 +2,7 @@
 
 namespace Tests\SouthPointe\Core\Exceptions;
 
-use SouthPointe\Core\Exceptions\Exception;
+use Kirameki\Core\Exceptions\Exception;
 
 class HandlesContextTest extends TestCase
 {

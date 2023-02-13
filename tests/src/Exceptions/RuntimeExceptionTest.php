@@ -3,9 +3,9 @@
 namespace Tests\SouthPointe\Core\Exceptions;
 
 use JsonSerializable;
+use Kirameki\Core\Exceptions\Exceptionable;
+use Kirameki\Core\Exceptions\RuntimeException;
 use RuntimeException as BaseException;
-use SouthPointe\Core\Exceptions\Exceptionable;
-use SouthPointe\Core\Exceptions\RuntimeException;
 use function random_int;
 
 class RuntimeExceptionTest extends TestCase

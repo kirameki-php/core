@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace SouthPointe\Core\Exceptions;
+namespace Kirameki\Core\Exceptions;
 
 /**
  * Thrown when JSON could not be decoded/encoded.
