@@ -1,6 +1,6 @@
 {
   "name": "kirameki/core",
-  "description": "A core library for South Pointe Framework",
+  "description": "A core library for Kirameki Framework",
   "type": "library",
   "license": "MIT",
   "require": {
