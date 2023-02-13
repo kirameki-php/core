@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace SouthPointe\Core;
+namespace Kirameki\Core;
 
 use function is_int;
 use function is_string;

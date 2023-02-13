@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Tests\SouthPointe\Core;
+namespace Tests\Kirameki\Core;
 
 use DateTime;
 use JsonException;
-use SouthPointe\Core\Json;
+use Kirameki\Core\Json;
 use Tests\Kirameki\Core\_JsonTest\IntEnum;
 use Tests\Kirameki\Core\_JsonTest\NonBackedEnum;
 use Tests\Kirameki\Core\_JsonTest\SimpleClass;
 use Tests\Kirameki\Core\_JsonTest\StringEnum;
-use Tests\SouthPointe\Core\Exceptions\TestCase;
+use Tests\Kirameki\Core\Exceptions\TestCase;
 use function substr;
 
 class JsonTest extends TestCase

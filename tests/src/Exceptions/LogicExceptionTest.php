@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Tests\SouthPointe\Core\Exceptions;
+namespace Tests\Kirameki\Core\Exceptions;
 
 use Exception as BaseException;
 use JsonSerializable;
