@@ -6,6 +6,7 @@ use JsonException as PhpJsonException;
 use Kirameki\Core\Exceptions\JsonException;
 use function json_decode;
 use function json_encode;
+use const JSON_FORCE_OBJECT;
 use const JSON_PRESERVE_ZERO_FRACTION;
 use const JSON_PRETTY_PRINT;
 use const JSON_THROW_ON_ERROR;
@@ -33,21 +34,22 @@ class Json
      */
     public static function encode(mixed $data, bool $formatted = false): string
     {
-        $options = JSON_PRESERVE_ZERO_FRACTION |
-            JSON_UNESCAPED_UNICODE |
-            JSON_UNESCAPED_SLASHES;
+        $flags = JSON_PRESERVE_ZERO_FRACTION
+                 | JSON_UNESCAPED_UNICODE
+                 | JSON_UNESCAPED_SLASHES
+                 | JSON_THROW_ON_ERROR;
 
         if ($formatted) {
-            $options |= JSON_PRETTY_PRINT;
+            $flags |= JSON_PRETTY_PRINT;
         }
 
         try {
-            return json_encode($data, $options | JSON_THROW_ON_ERROR);
+            return json_encode($data, $flags);
         } catch (PhpJsonException $e) {
             throw new JsonException($e->getMessage(), [
                 'type' => __FUNCTION__,
                 'data' => $data,
-                'options' => $options,
+                'options' => $flags,
                 'formatted' => $formatted,
             ], $e->getCode(), $e->getPrevious());
         }
@@ -70,7 +72,9 @@ class Json
     public static function decode(string $json): mixed
     {
         try {
-            return json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+            $flags = JSON_THROW_ON_ERROR;
+
+            return json_decode($json, flags: $flags);
         } catch (PhpJsonException $e) {
             throw new JsonException($e->getMessage(), [
                 'type' => __FUNCTION__,
@@ -98,7 +102,7 @@ class Json
     public static function validate(string $json): bool
     {
         try {
-            json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+            json_decode($json, flags: JSON_THROW_ON_ERROR);
         }
         catch (PhpJsonException) {
             return false;
