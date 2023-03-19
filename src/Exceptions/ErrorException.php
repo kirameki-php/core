@@ -14,15 +14,18 @@ class ErrorException extends BaseException implements Exceptionable, JsonSeriali
      * @param int $severity
      * @param string|null $filename
      * @param int|null $line
+     * @param iterable<string, mixed>|null $context
      */
     public function __construct(
         string $message,
         int $severity,
         ?string $filename,
         ?int $line,
+        ?iterable $context = null,
     )
     {
         parent::__construct($message, 0, $severity, $filename, $line);
+        $this->setContext($context);
     }
 
     /**
