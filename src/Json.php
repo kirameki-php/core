@@ -6,7 +6,6 @@ use JsonException as PhpJsonException;
 use Kirameki\Core\Exceptions\JsonException;
 use function json_decode;
 use function json_encode;
-use const JSON_FORCE_OBJECT;
 use const JSON_PRESERVE_ZERO_FRACTION;
 use const JSON_PRETTY_PRINT;
 use const JSON_THROW_ON_ERROR;
