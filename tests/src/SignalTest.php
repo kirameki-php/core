@@ -16,7 +16,7 @@ use const SIGUSR1;
 final class SignalTest extends TestCase
 {
     #[Before]
-    protected function clearHandlers(): void
+    private function clearHandlers(): void
     {
         Signal::clearAllHandlers();
     }
