@@ -6,7 +6,7 @@ use Kirameki\Core\Exceptions\Exception;
 use RuntimeException;
 use function array_keys;
 
-class HandlesJsonTest extends TestCase
+final class HandlesJsonTest extends TestCase
 {
     public function test_jsonSerialize(): void
     {

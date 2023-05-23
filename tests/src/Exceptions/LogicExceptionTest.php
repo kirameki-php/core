@@ -9,7 +9,7 @@ use Kirameki\Core\Exceptions\LogicException;
 use RuntimeException;
 use function random_int;
 
-class LogicExceptionTest extends TestCase
+final class LogicExceptionTest extends TestCase
 {
     public function test_construct(): void
     {

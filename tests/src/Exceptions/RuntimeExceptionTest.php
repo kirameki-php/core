@@ -8,7 +8,7 @@ use Kirameki\Core\Exceptions\RuntimeException;
 use RuntimeException as BaseException;
 use function random_int;
 
-class RuntimeExceptionTest extends TestCase
+final class RuntimeExceptionTest extends TestCase
 {
     public function test_construct(): void
     {

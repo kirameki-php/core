@@ -9,7 +9,7 @@ use Kirameki\Core\Exceptions\UndefinedMethodException;
 use RuntimeException;
 use function random_int;
 
-class UndefinedMethodExceptionTest extends TestCase
+final class UndefinedMethodExceptionTest extends TestCase
 {
     public function test_construct(): void
     {

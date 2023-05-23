@@ -10,7 +10,7 @@ use function array_keys;
 use const E_ERROR;
 use const E_WARNING;
 
-class ErrorExceptionTest extends TestCase
+final class ErrorExceptionTest extends TestCase
 {
     public function test_construct(): void
     {

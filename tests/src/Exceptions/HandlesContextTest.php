@@ -4,7 +4,7 @@ namespace Tests\Kirameki\Core\Exceptions;
 
 use Kirameki\Core\Exceptions\Exception;
 
-class HandlesContextTest extends TestCase
+final class HandlesContextTest extends TestCase
 {
     public function test_addContext(): void
     {

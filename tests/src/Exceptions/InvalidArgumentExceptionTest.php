@@ -9,7 +9,7 @@ use Kirameki\Core\Exceptions\LogicException;
 use Kirameki\Core\Exceptions\RuntimeException;
 use function random_int;
 
-class InvalidArgumentExceptionTest extends TestCase
+final class InvalidArgumentExceptionTest extends TestCase
 {
     public function test_construct(): void
     {

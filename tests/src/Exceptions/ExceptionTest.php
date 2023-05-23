@@ -9,7 +9,7 @@ use Kirameki\Core\Exceptions\Exceptionable;
 use RuntimeException;
 use function random_int;
 
-class ExceptionTest extends TestCase
+final class ExceptionTest extends TestCase
 {
     public function test_construct(): void
     {

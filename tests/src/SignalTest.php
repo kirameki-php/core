@@ -6,18 +6,18 @@ use Kirameki\Core\Exceptions\LogicException;
 use Kirameki\Core\Signal;
 use Kirameki\Core\SignalEvent;
 use Tests\Kirameki\Core\Exceptions\TestCase;
+use PHPUnit\Framework\Attributes\Before;
 use function getmypid;
 use function posix_kill;
 use const SIGINT;
 use const SIGKILL;
 use const SIGUSR1;
 
-class SignalTest extends TestCase
+final class SignalTest extends TestCase
 {
-    protected function tearDown(): void
+    #[Before]
+    protected function clearHandlers(): void
     {
-        parent::tearDown();
-
         Signal::clearAllHandlers();
     }
 

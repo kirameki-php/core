@@ -9,7 +9,7 @@ use Kirameki\Core\Exceptions\NotSupportedException;
 use RuntimeException;
 use function random_int;
 
-class NotSupportedExceptionTest extends TestCase
+final class NotSupportedExceptionTest extends TestCase
 {
     public function test_construct(): void
     {

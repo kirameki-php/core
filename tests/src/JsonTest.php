@@ -13,7 +13,7 @@ use Tests\Kirameki\Core\_JsonTest\StringEnum;
 use Tests\Kirameki\Core\Exceptions\TestCase;
 use function substr;
 
-class JsonTest extends TestCase
+final class JsonTest extends TestCase
 {
     public function test_encode(): void
     {

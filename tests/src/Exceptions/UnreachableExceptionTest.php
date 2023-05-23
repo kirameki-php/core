@@ -9,7 +9,7 @@ use Kirameki\Core\Exceptions\UnreachableException;
 use RuntimeException;
 use function random_int;
 
-class UnreachableExceptionTest extends TestCase
+final class UnreachableExceptionTest extends TestCase
 {
     public function test_construct(): void
     {
