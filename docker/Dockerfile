@@ -8,8 +8,8 @@ COPY --from=composer /usr/bin/composer /usr/local/bin/composer
 RUN set -e \
     && apk add --no-cache bash coreutils git \
     && apk add --no-cache --virtual=.build-deps autoconf g++ make \
-    && pecl install pcov \
     && docker-php-ext-install -j$(nproc) pcntl \
+    && pecl install pcov \
     && docker-php-ext-enable pcov \
     && apk del .build-deps \
     && docker-php-source delete \
