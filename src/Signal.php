@@ -90,17 +90,41 @@ final class Signal
     }
 
     /**
+     * Clears the signal handlers for the specified signal.
+     * if `$callback` is specified, that specific handler will be cleared.
+     *
      * @param int $signal
+     * Signal to clear.
+     * @param Closure(SignalEvent): mixed|null $callback
+     * [Optional] Specific handler to clear.
+     * Defaults to **null**.
      * @return void
      */
-    public static function clearHandlers(int $signal): void
+    public static function clearHandlers(int $signal, ?Closure $callback = null): void
     {
-        if (array_key_exists($signal, self::$callbacks)) {
-            pcntl_signal($signal, SIG_DFL);
-            unset(self::$callbacks[$signal]);
+        if (!array_key_exists($signal, self::$callbacks)) {
+            return;
         }
+
+        // Clear specific handler.
+        if ($callback !== null) {
+            foreach (self::$callbacks[$signal] as $index => $each) {
+                if ($each === $callback) {
+                    unset(self::$callbacks[$signal][$index]);
+                    break;
+                }
+            }
+            return;
+        }
+
+        // Clear all handlers.
+        unset(self::$callbacks[$signal]);
+        pcntl_signal($signal, SIG_DFL);
     }
 
+    /**
+     * @return void
+     */
     public static function clearAllHandlers(): void
     {
         foreach (self::registeredSignals() as $signal) {

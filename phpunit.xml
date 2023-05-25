@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <phpunit bootstrap="vendor/autoload.php"
          executionOrder="depends,defects"
-         cacheDirectory=".phpunit.cache"
+         cacheDirectory="/tmp/.phpunit.cache"
          colors="true">
   <coverage/>
   <testsuites>

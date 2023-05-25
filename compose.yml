@@ -1,11 +1,11 @@
 services:
   app:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
+    image: toyama4649/kirameki-php-cli:latest
+    environment:
+      TZ: Asia/Tokyo
     volumes:
       - type: bind
-        source: ..
+        source: .
         target: /app
       - type: volume
         source: user
