@@ -16,7 +16,7 @@ use const SIGUSR1;
 final class SignalTest extends TestCase
 {
     #[Before]
-    private function clearHandlers(): void
+    public function clearHandlers(): void
     {
         Signal::clearAllHandlers();
     }
@@ -69,6 +69,32 @@ final class SignalTest extends TestCase
     {
         $this->assertSame([], Signal::registeredSignals());
         Signal::handle(SIGINT, static fn() => null);
+        $this->assertSame([SIGINT], Signal::registeredSignals());
+    }
+
+    public function test_clearHandler(): void
+    {
+        $callback = static fn() => null;
+        Signal::handle(SIGINT, $callback);
+        Signal::handle(SIGUSR1, $callback);
+        $this->assertSame([SIGINT, SIGUSR1], Signal::registeredSignals());
+
+        Signal::clearHandlers(SIGUSR1);
+        $this->assertSame([SIGINT], Signal::registeredSignals());
+    }
+
+    public function test_clearHandler_with_callback(): void
+    {
+        $callback = static fn() => 0;
+        $callbackAlt = static fn() => 1;
+        Signal::handle(SIGINT, $callback);
+        Signal::handle(SIGUSR1, $callback);
+        Signal::handle(SIGUSR1, $callbackAlt);
+        $this->assertSame([SIGINT, SIGUSR1], Signal::registeredSignals());
+
+        Signal::clearHandlers(SIGUSR1, $callback);
+        $this->assertSame([SIGINT, SIGUSR1], Signal::registeredSignals());
+        Signal::clearHandlers(SIGUSR1, $callbackAlt);
         $this->assertSame([SIGINT], Signal::registeredSignals());
     }
 }

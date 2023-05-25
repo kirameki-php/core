@@ -114,6 +114,10 @@ final class Signal
                     break;
                 }
             }
+            if (self::$callbacks[$signal] === []) {
+                unset(self::$callbacks[$signal]);
+                pcntl_signal($signal, SIG_DFL);
+            }
             return;
         }
 
