@@ -37,11 +37,8 @@ final class Env
      */
     public static function getBool(string $key): bool
     {
-        $value = self::getBoolOrNull($key);
-        if ($value === null) {
-            self::throwUndefinedException($key);
-        }
-        return $value;
+        return self::getBoolOrNull($key)
+            ?? self::throwUndefinedException($key);
     }
 
     /**
@@ -51,16 +48,13 @@ final class Env
     public static function getBoolOrNull(string $key): ?bool
     {
         $value = self::getStringOrNull($key);
-        if (is_null($value)) {
-            return null;
-        }
-        if ($value === 'true') {
-            return true;
-        }
-        if ($value === 'false') {
-            return false;
-        }
-        self::throwNotSupportedException($key, $value, 'bool');
+
+        return match ($value) {
+            null => null,
+            'true' => true,
+            'false' => false,
+            default => self::throwNotSupportedException($key, $value, 'bool'),
+        };
     }
 
     /**
@@ -69,11 +63,8 @@ final class Env
      */
     public static function getInt(string $key): int
     {
-        $value = self::getIntOrNull($key);
-        if ($value === null) {
-            self::throwUndefinedException($key);
-        }
-        return $value;
+        return self::getIntOrNull($key)
+            ?? self::throwUndefinedException($key);
     }
 
     /**
@@ -98,11 +89,8 @@ final class Env
      */
     public static function getFloat(string $key): float
     {
-        $value = self::getFloatOrNull($key);
-        if ($value === null) {
-            self::throwUndefinedException($key);
-        }
-        return $value;
+        return self::getFloatOrNull($key)
+            ?? self::throwUndefinedException($key);
     }
 
     /**
@@ -112,7 +100,7 @@ final class Env
     public static function getFloatOrNull(string $key): ?float
     {
         $value = self::getStringOrNull($key);
-        if (is_null($value)) {
+        if ($value === null) {
             return null;
         }
         if (is_numeric($value)) {
@@ -136,11 +124,8 @@ final class Env
      */
     public static function getString(string $key): string
     {
-        $value = self::getStringOrNull($key);
-        if ($value === null) {
-            self::throwUndefinedException($key);
-        }
-        return $value;
+        return self::getStringOrNull($key)
+            ?? self::throwUndefinedException($key);
     }
 
     /**
@@ -159,31 +144,35 @@ final class Env
      */
     public static function set(string $key, mixed $value): void
     {
-        $_ENV[$key] = self::valueAsString($value);
+        $_ENV[$key] = self::valueAsString($key, $value);
     }
 
     /**
      * @param string $key
      * @param scalar $value
-     * @return void
+     * @return bool
      */
-    public static function setIfExists(string $key, mixed $value): void
+    public static function setIfExists(string $key, mixed $value): bool
     {
         if (self::exists($key)) {
             self::set($key, $value);
+            return true;
         }
+        return false;
     }
 
     /**
      * @param string $key
      * @param scalar $value
-     * @return void
+     * @return bool
      */
-    public static function setIfNotExists(string $key, mixed $value): void
+    public static function setIfNotExists(string $key, mixed $value): bool
     {
         if (!self::exists($key)) {
             self::set($key, $value);
+            return true;
         }
+        return false;
     }
 
     /**
@@ -197,9 +186,20 @@ final class Env
 
     /**
      * @param string $key
+     * @return void
+     */
+    public static function delete(string $key): void
+    {
+        if (!self::deleteOrIgnore($key)) {
+            self::throwUndefinedException($key);
+        }
+    }
+
+    /**
+     * @param string $key
      * @return bool
      */
-    public static function delete(string $key): bool
+    public static function deleteOrIgnore(string $key): bool
     {
         if (self::exists($key)) {
             unset($_ENV[$key]);
@@ -209,10 +209,11 @@ final class Env
     }
 
     /**
+     * @param string $key
      * @param mixed $value
      * @return string
      */
-    private static function valueAsString(mixed $value): string
+    private static function valueAsString(string $key, mixed $value): string
     {
         if (is_string($value)) {
             return $value;
@@ -228,6 +229,7 @@ final class Env
 
         $type = gettype($value);
         throw new NotSupportedException("Type: {$type} cannot be converted to string.", [
+            'key' => $key,
             'value' => $value,
         ]);
     }
@@ -238,7 +240,9 @@ final class Env
      */
     private static function throwUndefinedException(string $key): never
     {
-        throw new InvalidArgumentException("ENV: {$key} is not defined.");
+        throw new InvalidArgumentException("ENV: {$key} is not defined.", [
+            'key' => $key,
+        ]);
     }
 
     /**

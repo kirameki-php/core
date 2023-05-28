@@ -107,9 +107,9 @@ final class JsonTest extends TestCase
 
     public function test_decode_invalid_string(): void
     {
-        $this->expectException(JsonException::class);
         $this->expectExceptionMessage('Malformed UTF-8 characters, possibly incorrectly encoded');
-        Json::encode(substr('あ', 0, 1));
+        $this->expectException(JsonException::class);
+        Json::decode(substr('あ', 0, 1));
     }
 
     public function test_validate(): void

@@ -37,10 +37,9 @@ final class EnvTest extends TestCase
 
     public function test_all_out_of_order(): void
     {
-        $keys = array_keys(Env::all(false));
-        $this->assertLessThan(
-            array_search('LANG', $keys, true),
-            array_search('TZ', $keys, true),
+        $this->assertNotSame(
+            array_keys(Env::all()),
+            array_keys(Env::all(false)),
         );
     }
 
@@ -269,6 +268,26 @@ final class EnvTest extends TestCase
         $this->assertSame('null', Env::getStringOrNull('DEBUG'), 'null string');
     }
 
+    public function test_setIfExists(): void
+    {
+        $this->runBeforeTearDown(fn() => Env::delete('DEBUG'));
+
+        $this->assertFalse(Env::setIfExists('DEBUG', 2), 'setIfExists with missing');
+        Env::set('DEBUG', 1);
+        $this->assertTrue(Env::setIfExists('DEBUG', 2), 'setIfExists with existing');
+        $this->assertSame(2, Env::getInt('DEBUG'), 'setIfExists get overwritten');
+    }
+
+    public function test_setIfNotExists(): void
+    {
+        $this->runBeforeTearDown(fn() => Env::delete('DEBUG'));
+
+        $this->assertTrue(Env::setIfNotExists('DEBUG', 1), 'setIfNotExists with missing');
+        $this->assertSame(1, Env::getInt('DEBUG'), 'setIfNotExists written');
+        $this->assertFalse(Env::setIfNotExists('DEBUG', 2), 'setIfNotExists with existing');
+        $this->assertSame(1, Env::getInt('DEBUG'), 'setIfNotExists not written');
+    }
+
     public function test_set_null_invalid(): void
     {
         $this->expectExceptionMessage('Type: NULL cannot be converted to string.');
@@ -288,5 +307,54 @@ final class EnvTest extends TestCase
         $this->expectExceptionMessage('Type: object cannot be converted to string.');
         $this->expectException(NotSupportedException::class);
         Env::set('DEBUG', new DateTime());
+    }
+
+    public function test_exists(): void
+    {
+        $this->runBeforeTearDown(fn() => Env::delete('DEBUG'));
+
+        $this->assertFalse(Env::exists('DEBUG'), 'missing');
+        Env::set('DEBUG', 1);
+        $this->assertTrue(Env::exists('DEBUG'), 'existing');
+    }
+
+    public function test_delete(): void
+    {
+        $this->runBeforeTearDown(fn() => Env::deleteOrIgnore('DEBUG'));
+
+        Env::set('DEBUG', 'hi');
+        $this->assertTrue(Env::exists('DEBUG'), 'check deleted');
+        Env::delete('DEBUG');
+        $this->assertFalse(Env::exists('DEBUG'), 'check deleted');
+
+        Env::set('DEBUG', '');
+        $this->assertTrue(Env::exists('DEBUG'), 'check deleted');
+        Env::delete('DEBUG');
+        $this->assertFalse(Env::exists('DEBUG'), 'check deleted');
+
+        $_ENV['DEBUG'] = null;
+        $this->assertTrue(Env::exists('DEBUG'), 'check deleted');
+        Env::delete('DEBUG');
+        $this->assertFalse(Env::exists('DEBUG'), 'check deleted');
+    }
+
+    public function test_deleteOrIgnore(): void
+    {
+        $this->runBeforeTearDown(fn() => Env::deleteOrIgnore('DEBUG'));
+
+        Env::set('DEBUG', 'hi');
+        $this->assertTrue(Env::deleteOrIgnore('DEBUG'), 'delete success');
+        $this->assertFalse(Env::deleteOrIgnore('DEBUG'), 'delete fail');
+        $this->assertFalse(Env::exists('DEBUG'), 'check deleted');
+
+        Env::set('DEBUG', '');
+        $this->assertTrue(Env::deleteOrIgnore('DEBUG'), 'delete success');
+        $this->assertFalse(Env::deleteOrIgnore('DEBUG'), 'delete fail');
+        $this->assertFalse(Env::exists('DEBUG'), 'check deleted');
+
+        $_ENV['DEBUG'] = null;
+        $this->assertTrue(Env::deleteOrIgnore('DEBUG'), 'delete success');
+        $this->assertFalse(Env::deleteOrIgnore('DEBUG'), 'delete fail');
+        $this->assertFalse(Env::exists('DEBUG'), 'check deleted');
     }
 }

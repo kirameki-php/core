@@ -98,19 +98,21 @@ final class Signal
      * @param Closure(SignalEvent): mixed|null $callback
      * [Optional] Specific handler to clear.
      * Defaults to **null**.
-     * @return void
+     * @return bool
      */
-    public static function clearHandlers(int $signal, ?Closure $callback = null): void
+    public static function clearHandlers(int $signal, ?Closure $callback = null): bool
     {
         if (!array_key_exists($signal, self::$callbacks)) {
-            return;
+            return false;
         }
 
         // Clear specific handler.
         if ($callback !== null) {
+            $cleared = false;
             foreach (self::$callbacks[$signal] as $index => $each) {
                 if ($each === $callback) {
                     unset(self::$callbacks[$signal][$index]);
+                    $cleared = true;
                     break;
                 }
             }
@@ -118,12 +120,13 @@ final class Signal
                 unset(self::$callbacks[$signal]);
                 pcntl_signal($signal, SIG_DFL);
             }
-            return;
+            return $cleared;
         }
 
         // Clear all handlers.
         unset(self::$callbacks[$signal]);
         pcntl_signal($signal, SIG_DFL);
+        return true;
     }
 
     /**
