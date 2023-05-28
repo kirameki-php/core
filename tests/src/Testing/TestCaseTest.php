@@ -3,8 +3,6 @@
 namespace Tests\Kirameki\Core\Testing;
 
 use Kirameki\Core\Testing\TestCase;
-use function func_get_arg;
-use function var_dump;
 
 final class TestCaseTest extends TestCase
 {
