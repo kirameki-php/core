@@ -4,6 +4,7 @@ namespace Kirameki\Core\Testing;
 
 use Closure;
 use PHPUnit\Framework\TestCase as BaseTestCase;
+use function var_dump;
 
 abstract class TestCase extends BaseTestCase
 {
