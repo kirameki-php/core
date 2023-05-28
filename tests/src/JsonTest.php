@@ -5,12 +5,12 @@ namespace Tests\Kirameki\Core;
 use DateTime;
 use Kirameki\Core\Exceptions\JsonException;
 use Kirameki\Core\Json;
+use Kirameki\Core\Testing\TestCase;
 use stdClass;
 use Tests\Kirameki\Core\_JsonTest\IntEnum;
 use Tests\Kirameki\Core\_JsonTest\NonBackedEnum;
 use Tests\Kirameki\Core\_JsonTest\SimpleClass;
 use Tests\Kirameki\Core\_JsonTest\StringEnum;
-use Tests\Kirameki\Core\Exceptions\TestCase;
 use function substr;
 
 final class JsonTest extends TestCase

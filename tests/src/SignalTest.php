@@ -5,7 +5,7 @@ namespace Tests\Kirameki\Core;
 use Kirameki\Core\Exceptions\LogicException;
 use Kirameki\Core\Signal;
 use Kirameki\Core\SignalEvent;
-use Tests\Kirameki\Core\Exceptions\TestCase;
+use Kirameki\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\Before;
 use function getmypid;
 use function posix_kill;

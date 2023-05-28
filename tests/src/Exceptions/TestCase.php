@@ -2,7 +2,7 @@
 
 namespace Tests\Kirameki\Core\Exceptions;
 
-use PHPUnit\Framework\TestCase as BaseTestCase;
+use Kirameki\Core\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
