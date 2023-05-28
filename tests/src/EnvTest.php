@@ -338,6 +338,16 @@ final class EnvTest extends TestCase
         $this->assertFalse(Env::exists('DEBUG'), 'check deleted');
     }
 
+    public function test_delete_on_missing_key(): void
+    {
+        $this->runBeforeTearDown(fn() => Env::deleteOrIgnore('DEBUG'));
+
+        $this->expectExceptionMessage('ENV: DEBUG is not defined.');
+        $this->expectException(InvalidArgumentException::class);
+        $this->assertFalse(Env::exists('DEBUG'), 'check deleted');
+        Env::delete('DEBUG');
+    }
+
     public function test_deleteOrIgnore(): void
     {
         $this->runBeforeTearDown(fn() => Env::deleteOrIgnore('DEBUG'));
