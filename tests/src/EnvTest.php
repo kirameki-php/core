@@ -320,7 +320,7 @@ final class EnvTest extends TestCase
 
     public function test_delete(): void
     {
-        $this->runBeforeTearDown(fn() => Env::deleteOrIgnore('DEBUG'));
+        $this->runBeforeTearDown(fn() => Env::deleteOrFalse('DEBUG'));
 
         Env::set('DEBUG', 'hi');
         $this->assertTrue(Env::exists('DEBUG'), 'check deleted');
@@ -340,7 +340,7 @@ final class EnvTest extends TestCase
 
     public function test_delete_on_missing_key(): void
     {
-        $this->runBeforeTearDown(fn() => Env::deleteOrIgnore('DEBUG'));
+        $this->runBeforeTearDown(fn() => Env::deleteOrFalse('DEBUG'));
 
         $this->expectExceptionMessage('ENV: DEBUG is not defined.');
         $this->expectException(InvalidArgumentException::class);
@@ -348,23 +348,23 @@ final class EnvTest extends TestCase
         Env::delete('DEBUG');
     }
 
-    public function test_deleteOrIgnore(): void
+    public function test_deleteOrFalse(): void
     {
-        $this->runBeforeTearDown(fn() => Env::deleteOrIgnore('DEBUG'));
+        $this->runBeforeTearDown(fn() => Env::deleteOrFalse('DEBUG'));
 
         Env::set('DEBUG', 'hi');
-        $this->assertTrue(Env::deleteOrIgnore('DEBUG'), 'delete success');
-        $this->assertFalse(Env::deleteOrIgnore('DEBUG'), 'delete fail');
+        $this->assertTrue(Env::deleteOrFalse('DEBUG'), 'delete success');
+        $this->assertFalse(Env::deleteOrFalse('DEBUG'), 'delete fail');
         $this->assertFalse(Env::exists('DEBUG'), 'check deleted');
 
         Env::set('DEBUG', '');
-        $this->assertTrue(Env::deleteOrIgnore('DEBUG'), 'delete success');
-        $this->assertFalse(Env::deleteOrIgnore('DEBUG'), 'delete fail');
+        $this->assertTrue(Env::deleteOrFalse('DEBUG'), 'delete success');
+        $this->assertFalse(Env::deleteOrFalse('DEBUG'), 'delete fail');
         $this->assertFalse(Env::exists('DEBUG'), 'check deleted');
 
         $_ENV['DEBUG'] = null;
-        $this->assertTrue(Env::deleteOrIgnore('DEBUG'), 'delete success');
-        $this->assertFalse(Env::deleteOrIgnore('DEBUG'), 'delete fail');
+        $this->assertTrue(Env::deleteOrFalse('DEBUG'), 'delete success');
+        $this->assertFalse(Env::deleteOrFalse('DEBUG'), 'delete fail');
         $this->assertFalse(Env::exists('DEBUG'), 'check deleted');
     }
 }

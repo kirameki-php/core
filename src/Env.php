@@ -190,7 +190,7 @@ final class Env
      */
     public static function delete(string $key): void
     {
-        if (!self::deleteOrIgnore($key)) {
+        if (!self::deleteOrFalse($key)) {
             self::throwUndefinedException($key);
         }
     }
@@ -199,7 +199,7 @@ final class Env
      * @param string $key
      * @return bool
      */
-    public static function deleteOrIgnore(string $key): bool
+    public static function deleteOrFalse(string $key): bool
     {
         if (self::exists($key)) {
             unset($_ENV[$key]);
