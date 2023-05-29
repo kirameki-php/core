@@ -5,7 +5,7 @@ namespace Tests\Kirameki\Core;
 use DateTime;
 use Kirameki\Core\Env;
 use Kirameki\Core\Exceptions\TypeConversionException;
-use Kirameki\Core\Exceptions\InvalidArgumentException;
+use Kirameki\Core\Exceptions\KeyNotFoundException;
 use Kirameki\Core\Exceptions\TypeMismatchException;
 use Kirameki\Core\Testing\TestCase;
 use function array_keys;
@@ -59,7 +59,7 @@ final class EnvTest extends TestCase
     public function test_getBool_on_missing(): void
     {
         $this->expectExceptionMessage('ENV: DEBUG is not defined.');
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(KeyNotFoundException::class);
         Env::getBool('DEBUG');
     }
 
@@ -105,7 +105,7 @@ final class EnvTest extends TestCase
     public function test_getInt_on_missing(): void
     {
         $this->expectExceptionMessage('ENV: DEBUG is not defined.');
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(KeyNotFoundException::class);
         Env::getInt('DEBUG');
     }
 
@@ -181,7 +181,7 @@ final class EnvTest extends TestCase
     public function test_getFloat_on_missing(): void
     {
         $this->expectExceptionMessage('ENV: DEBUG is not defined.');
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(KeyNotFoundException::class);
         Env::getFloat('DEBUG');
     }
 
@@ -221,7 +221,7 @@ final class EnvTest extends TestCase
     public function test_getString_on_missing(): void
     {
         $this->expectExceptionMessage('ENV: DEBUG is not defined.');
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(KeyNotFoundException::class);
         Env::getFloat('DEBUG');
     }
 
@@ -344,7 +344,7 @@ final class EnvTest extends TestCase
         $this->runBeforeTearDown(fn() => Env::deleteOrFalse('DEBUG'));
 
         $this->expectExceptionMessage('ENV: DEBUG is not defined.');
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(KeyNotFoundException::class);
         $this->assertFalse(Env::exists('DEBUG'), 'check deleted');
         Env::delete('DEBUG');
     }
