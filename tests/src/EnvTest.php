@@ -4,8 +4,9 @@ namespace Tests\Kirameki\Core;
 
 use DateTime;
 use Kirameki\Core\Env;
+use Kirameki\Core\Exceptions\TypeConversionException;
 use Kirameki\Core\Exceptions\InvalidArgumentException;
-use Kirameki\Core\Exceptions\NotSupportedException;
+use Kirameki\Core\Exceptions\TypeMismatchException;
 use Kirameki\Core\Testing\TestCase;
 use function array_keys;
 use function array_search;
@@ -68,7 +69,7 @@ final class EnvTest extends TestCase
 
         Env::set('DEBUG', 1);
         $this->expectExceptionMessage('Expected: DEBUG to be type bool. Got: string.');
-        $this->expectException(NotSupportedException::class);
+        $this->expectException(TypeMismatchException::class);
         Env::getBool('DEBUG');
     }
 
@@ -113,7 +114,7 @@ final class EnvTest extends TestCase
         $this->runBeforeTearDown(fn() => Env::delete('DEBUG'));
 
         $this->expectExceptionMessage('Expected: DEBUG to be type int. Got: string.');
-        $this->expectException(NotSupportedException::class);
+        $this->expectException(TypeMismatchException::class);
         Env::set('DEBUG', '0a0');
         Env::getInt('DEBUG');
     }
@@ -189,7 +190,7 @@ final class EnvTest extends TestCase
         $this->runBeforeTearDown(fn() => Env::delete('DEBUG'));
 
         $this->expectExceptionMessage('Expected: DEBUG to be type float. Got: string.');
-        $this->expectException(NotSupportedException::class);
+        $this->expectException(TypeMismatchException::class);
         Env::set('DEBUG', '0a0.0');
         Env::getFloat('DEBUG');
     }
@@ -291,21 +292,21 @@ final class EnvTest extends TestCase
     public function test_set_null_invalid(): void
     {
         $this->expectExceptionMessage('Type: NULL cannot be converted to string.');
-        $this->expectException(NotSupportedException::class);
+        $this->expectException(TypeConversionException::class);
         Env::set('DEBUG', null);
     }
 
     public function test_set_array_invalid(): void
     {
         $this->expectExceptionMessage('Type: array cannot be converted to string.');
-        $this->expectException(NotSupportedException::class);
+        $this->expectException(TypeConversionException::class);
         Env::set('DEBUG', []);
     }
 
     public function test_set_object_invalid(): void
     {
         $this->expectExceptionMessage('Type: object cannot be converted to string.');
-        $this->expectException(NotSupportedException::class);
+        $this->expectException(TypeConversionException::class);
         Env::set('DEBUG', new DateTime());
     }
 

@@ -2,8 +2,9 @@
 
 namespace Kirameki\Core;
 
+use Kirameki\Core\Exceptions\TypeConversionException;
 use Kirameki\Core\Exceptions\InvalidArgumentException;
-use Kirameki\Core\Exceptions\NotSupportedException;
+use Kirameki\Core\Exceptions\TypeMismatchException;
 use function filter_var;
 use function gettype;
 use function is_bool;
@@ -20,6 +21,12 @@ use const FILTER_VALIDATE_INT;
 final class Env
 {
     /**
+     * Returns all environment variables.
+     *
+     * @param bool $sorted
+     * [Optional] Sorts the result by key if **true**, otherwise
+     * return in order it was inserted.
+     * Defaults to **true**.
      * @return array<string, scalar>
      */
     public static function all(bool $sorted = true): array
@@ -32,7 +39,12 @@ final class Env
     }
 
     /**
+     * Returns the value of the environment variable as bool.
+     * Throws `InvalidArgumentException` if the `$key` is not defined.
+     * Throws `TypeMismatchException` if `$value` is not a valid bool.
+     *
      * @param string $key
+     * Key name of the environment variable.
      * @return bool
      */
     public static function getBool(string $key): bool
@@ -42,7 +54,12 @@ final class Env
     }
 
     /**
+     * Returns the value of the environment variable as bool.
+     * Returns **null** if the `$key` is not defined.
+     * Throws `TypeMismatchException` if `$value` is not a valid bool.
+     *
      * @param string $key
+     * Key name of the environment variable.
      * @return bool|null
      */
     public static function getBoolOrNull(string $key): ?bool
@@ -53,12 +70,17 @@ final class Env
             null => null,
             'true' => true,
             'false' => false,
-            default => self::throwNotSupportedException($key, $value, 'bool'),
+            default => self::throwTypeMismatchException($key, $value, 'bool'),
         };
     }
 
     /**
+     * Returns the value of the environment variable as int.
+     * Throws `InvalidArgumentException` if the `$key` is not defined.
+     * Throws `TypeMismatchException` if `$value` is not a valid int.
+     *
      * @param string $key
+     * Key name of the environment variable.
      * @return int
      */
     public static function getInt(string $key): int
@@ -68,7 +90,12 @@ final class Env
     }
 
     /**
+     * Returns the value of the environment variable as int.
+     * Returns **null** if the `$key` is not defined.
+     * Throws `TypeMismatchException` if `$value` is not a valid int.
+     *
      * @param string $key
+     * Key name of the environment variable.
      * @return int|null
      */
     public static function getIntOrNull(string $key): ?int
@@ -80,11 +107,16 @@ final class Env
         if (preg_match("/^-?([1-9][0-9]*|[0-9])$/", $value)) {
             return filter_var($value, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE);
         }
-        self::throwNotSupportedException($key, $value, 'int');
+        self::throwTypeMismatchException($key, $value, 'int');
     }
 
     /**
+     * Returns the value of the environment variable as float.
+     * Throws `InvalidArgumentException` if the `$key` is not defined.
+     * Throws `TypeMismatchException` if `$value` is not a valid float.
+     *
      * @param string $key
+     * Key name of the environment variable.
      * @return float
      */
     public static function getFloat(string $key): float
@@ -94,7 +126,12 @@ final class Env
     }
 
     /**
+     * Returns the value of the environment variable as float.
+     * Returns **null** if the `$key` is not defined.
+     * Throws `TypeMismatchException` if `$value` is not a valid float.
+     *
      * @param string $key
+     * Key name of the environment variable.
      * @return float|null
      */
     public static function getFloatOrNull(string $key): ?float
@@ -115,11 +152,15 @@ final class Env
         if ($value === '-INF') {
             return -INF;
         }
-        self::throwNotSupportedException($key, $value, 'float');
+        self::throwTypeMismatchException($key, $value, 'float');
     }
 
     /**
+     * Returns the value of the environment variable as string.
+     * Throws `InvalidArgumentException` if the `$key` is not defined.
+     *
      * @param string $key
+     * Key name of the environment variable.
      * @return string
      */
     public static function getString(string $key): string
@@ -129,7 +170,11 @@ final class Env
     }
 
     /**
+     * Returns the value of the environment variable as string.
+     * Returns **null** if the `$key` is not defined.
+     *
      * @param string $key
+     * Key name of the environment variable.
      * @return string|null
      */
     public static function getStringOrNull(string $key): ?string
@@ -138,8 +183,15 @@ final class Env
     }
 
     /**
+     * Sets the value of the environment variable.
+     * `$value` must be a valid scalar and will be converted into string.
+     * Throws `TypeConversionException` if `$value` is not a valid scalar.
+     * Boolean values will be converted into 'true' or 'false'.
+     *
      * @param string $key
+     * Key name of the environment variable.
      * @param scalar $value
+     * Value of the environment variable.
      * @return void
      */
     public static function set(string $key, mixed $value): void
@@ -148,8 +200,16 @@ final class Env
     }
 
     /**
+     * Sets the value of the environment variable if the `$key` already exists
+     * and returns **true**, **false** otherwise.
+     * `$value` must be a valid scalar and will be converted into string.
+     * Throws `TypeConversionException` if `$value` is not a valid scalar.
+     * Boolean values will be converted into "true" or "false".
+     *
      * @param string $key
+     * Key name of the environment variable.
      * @param scalar $value
+     * Value of the environment variable.
      * @return bool
      */
     public static function setIfExists(string $key, mixed $value): bool
@@ -162,8 +222,16 @@ final class Env
     }
 
     /**
+     * Sets the value of the environment variable if the `$key` does not exist
+     * and returns **true**, **false** otherwise.
+     * `$value` must be a valid scalar and will be converted into string.
+     * Throws `TypeConversionException` if `$value` is not a valid scalar.
+     * Boolean values will be converted into 'true' or 'false'.
+     *
      * @param string $key
+     * Key name of the environment variable.
      * @param scalar $value
+     * Value of the environment variable.
      * @return bool
      */
     public static function setIfNotExists(string $key, mixed $value): bool
@@ -176,7 +244,10 @@ final class Env
     }
 
     /**
+     * Returns **true** if the environment variable exists, **false** otherwise.
+     *
      * @param string $key
+     * Key name of the environment variable.
      * @return bool
      */
     public static function exists(string $key): bool
@@ -185,7 +256,11 @@ final class Env
     }
 
     /**
+     * Deletes the environment variable.
+     * Throws `InvalidArgumentException` if the `$key` is not defined.
+     *
      * @param string $key
+     * Key name of the environment variable.
      * @return void
      */
     public static function delete(string $key): void
@@ -196,7 +271,11 @@ final class Env
     }
 
     /**
+     * Deletes the environment variable and returns **true**.
+     * Returns **false** if the `$key` is not defined.
+     *
      * @param string $key
+     * Key name of the environment variable.
      * @return bool
      */
     public static function deleteOrFalse(string $key): bool
@@ -209,8 +288,12 @@ final class Env
     }
 
     /**
+     * Converts the `$value` into string.
+     * 
      * @param string $key
+     * Key name of the environment variable.
      * @param mixed $value
+     * Value of the environment variable.
      * @return string
      */
     private static function valueAsString(string $key, mixed $value): string
@@ -228,7 +311,7 @@ final class Env
         }
 
         $type = gettype($value);
-        throw new NotSupportedException("Type: {$type} cannot be converted to string.", [
+        throw new TypeConversionException("Type: {$type} cannot be converted to string.", [
             'key' => $key,
             'value' => $value,
         ]);
@@ -236,6 +319,7 @@ final class Env
 
     /**
      * @param string $key
+     * Key name of the environment variable.
      * @return never-returns
      */
     private static function throwUndefinedException(string $key): never
@@ -247,14 +331,17 @@ final class Env
 
     /**
      * @param string $key
+     * Key name of the environment variable.
      * @param mixed $value
+     * Value of the environment variable.
      * @param string $expected
+     * Name of the expected type.
      * @return never-returns
      */
-    private static function throwNotSupportedException(string $key, mixed $value, string $expected): never
+    private static function throwTypeMismatchException(string $key, mixed $value, string $expected): never
     {
         $type = gettype($value);
-        throw new NotSupportedException("Expected: {$key} to be type {$expected}. Got: {$type}.", [
+        throw new TypeMismatchException("Expected: {$key} to be type {$expected}. Got: {$type}.", [
             'key' => $key,
             'value' => $value,
         ]);
