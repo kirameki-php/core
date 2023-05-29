@@ -14,6 +14,8 @@ use const JSON_UNESCAPED_UNICODE;
 
 class Json
 {
+    use StaticClass;
+
     /**
      * Encode data as JSON string.
      *

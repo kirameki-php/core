@@ -2,8 +2,8 @@
 
 namespace Kirameki\Core;
 
+use Kirameki\Core\Exceptions\KeyNotFoundException;
 use Kirameki\Core\Exceptions\TypeConversionException;
-use Kirameki\Core\Exceptions\InvalidArgumentException;
 use Kirameki\Core\Exceptions\TypeMismatchException;
 use function filter_var;
 use function gettype;
@@ -18,8 +18,10 @@ use function preg_match;
 use const FILTER_NULL_ON_FAILURE;
 use const FILTER_VALIDATE_INT;
 
-final class Env
+class Env
 {
+    use StaticClass;
+
     /**
      * Returns all environment variables.
      *
@@ -40,7 +42,7 @@ final class Env
 
     /**
      * Returns the value of the environment variable as bool.
-     * Throws `InvalidArgumentException` if the `$key` is not defined.
+     * Throws `KeyNotFoundException` if the `$key` is not defined.
      * Throws `TypeMismatchException` if `$value` is not a valid bool.
      *
      * @param string $key
@@ -50,7 +52,7 @@ final class Env
     public static function getBool(string $key): bool
     {
         return self::getBoolOrNull($key)
-            ?? self::throwUndefinedException($key);
+            ?? self::throwKeyNotFoundException($key);
     }
 
     /**
@@ -76,7 +78,7 @@ final class Env
 
     /**
      * Returns the value of the environment variable as int.
-     * Throws `InvalidArgumentException` if the `$key` is not defined.
+     * Throws `KeyNotFoundException` if the `$key` is not defined.
      * Throws `TypeMismatchException` if `$value` is not a valid int.
      *
      * @param string $key
@@ -86,7 +88,7 @@ final class Env
     public static function getInt(string $key): int
     {
         return self::getIntOrNull($key)
-            ?? self::throwUndefinedException($key);
+            ?? self::throwKeyNotFoundException($key);
     }
 
     /**
@@ -112,7 +114,7 @@ final class Env
 
     /**
      * Returns the value of the environment variable as float.
-     * Throws `InvalidArgumentException` if the `$key` is not defined.
+     * Throws `KeyNotFoundException` if the `$key` is not defined.
      * Throws `TypeMismatchException` if `$value` is not a valid float.
      *
      * @param string $key
@@ -122,7 +124,7 @@ final class Env
     public static function getFloat(string $key): float
     {
         return self::getFloatOrNull($key)
-            ?? self::throwUndefinedException($key);
+            ?? self::throwKeyNotFoundException($key);
     }
 
     /**
@@ -157,7 +159,7 @@ final class Env
 
     /**
      * Returns the value of the environment variable as string.
-     * Throws `InvalidArgumentException` if the `$key` is not defined.
+     * Throws `KeyNotFoundException` if the `$key` is not defined.
      *
      * @param string $key
      * Key name of the environment variable.
@@ -166,7 +168,7 @@ final class Env
     public static function getString(string $key): string
     {
         return self::getStringOrNull($key)
-            ?? self::throwUndefinedException($key);
+            ?? self::throwKeyNotFoundException($key);
     }
 
     /**
@@ -257,7 +259,7 @@ final class Env
 
     /**
      * Deletes the environment variable.
-     * Throws `InvalidArgumentException` if the `$key` is not defined.
+     * Throws `KeyNotFoundException` if the `$key` is not defined.
      *
      * @param string $key
      * Key name of the environment variable.
@@ -266,7 +268,7 @@ final class Env
     public static function delete(string $key): void
     {
         if (!self::deleteOrFalse($key)) {
-            self::throwUndefinedException($key);
+            self::throwKeyNotFoundException($key);
         }
     }
 
@@ -289,7 +291,7 @@ final class Env
 
     /**
      * Converts the `$value` into string.
-     * 
+     *
      * @param string $key
      * Key name of the environment variable.
      * @param mixed $value
@@ -322,9 +324,9 @@ final class Env
      * Key name of the environment variable.
      * @return never-returns
      */
-    private static function throwUndefinedException(string $key): never
+    private static function throwKeyNotFoundException(string $key): never
     {
-        throw new InvalidArgumentException("ENV: {$key} is not defined.", [
+        throw new KeyNotFoundException("ENV: {$key} is not defined.", [
             'key' => $key,
         ]);
     }

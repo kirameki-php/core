@@ -18,6 +18,8 @@ use const SIGTERM;
 
 final class Signal
 {
+    use StaticClass;
+
     /**
      * @see https://www.gnu.org/software/libc/manual/html_node/Termination-Signals.html
      */
