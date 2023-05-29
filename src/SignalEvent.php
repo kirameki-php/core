@@ -17,7 +17,13 @@ class SignalEvent
     }
 
     /**
+     * Mark signal for termination.
+     * When this is set to **true**, the application will exit after
+     * all the signal callbacks have been processed.
+     *
      * @param bool $toggle
+     * [Optional] Toggles termination.
+     * Defaults to **true**.
      * @return void
      */
     public function shouldTerminate(bool $toggle = true): void
@@ -26,6 +32,8 @@ class SignalEvent
     }
 
     /**
+     * Returns whether the signal is marked for termination.
+     *
      * @return bool
      */
     public function markedForTermination(): bool

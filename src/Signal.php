@@ -36,8 +36,12 @@ final class Signal
     private static array $callbacks = [];
 
     /**
+     * Adds `$callback` to the signal handler.
+     *
      * @param int $signal
+     * Signal number to handle.
      * @param Closure(SignalEvent): mixed $callback
+     * Callback to be invoked when the signal is received.
      * @return void
      */
     public static function handle(int $signal, Closure $callback): void
@@ -63,8 +67,12 @@ final class Signal
     }
 
     /**
+     * Invokes the callbacks for the given signal.
+     *
      * @param int $signal
+     * Signal number to be invoked.
      * @param mixed $siginfo
+     * Information about the signal from `pcntl_signal(...)`.
      * @return void
      */
     protected static function invoke(int $signal, mixed $siginfo): void
@@ -84,6 +92,8 @@ final class Signal
     }
 
     /**
+     * Returns all the registered signals.
+     *
      * @return array<int, int>
      */
     public static function registeredSignals(): array
@@ -93,7 +103,9 @@ final class Signal
 
     /**
      * Clears the signal handlers for the specified signal.
-     * if `$callback` is specified, that specific handler will be cleared.
+     * If `$callback` is specified, that specific handler will be cleared.
+     * When there are no more handlers for the signal, the signal will be
+     * restored to its default behavior using `SIG_DFL`.
      *
      * @param int $signal
      * Signal to clear.
@@ -132,6 +144,8 @@ final class Signal
     }
 
     /**
+     * Clears all the signal handlers.
+     *
      * @return void
      */
     public static function clearAllHandlers(): void
@@ -142,8 +156,13 @@ final class Signal
     }
 
     /**
+     * Creates a new signal event.
+     * Event will be marked for termination if the signal is a termination signal.
+     *
      * @param int $signal
+     * Signal number to be set.
      * @param mixed $siginfo
+     * Signal information from `pcntl_signal(...)` to be set.
      * @return SignalEvent
      */
     protected static function createSignalEvent(int $signal, mixed $siginfo): SignalEvent
