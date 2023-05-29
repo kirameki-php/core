@@ -67,7 +67,10 @@ final class Signal
     }
 
     /**
-     * Invokes the callbacks for the given signal.
+     * Invokes all callbacks for the given signal.
+     * If the signal is marked for termination, this process will exit
+     * with the given (signal number + 128) as specified in
+     * https://tldp.org/LDP/abs/html/exitcodes.html
      *
      * @param int $signal
      * Signal number to be invoked.
