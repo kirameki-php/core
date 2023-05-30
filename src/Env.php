@@ -18,10 +18,8 @@ use function preg_match;
 use const FILTER_NULL_ON_FAILURE;
 use const FILTER_VALIDATE_INT;
 
-class Env
+class Env extends StaticClass
 {
-    use StaticClass;
-
     /**
      * Returns all environment variables.
      *

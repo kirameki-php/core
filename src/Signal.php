@@ -16,10 +16,8 @@ use const SIGKILL;
 use const SIGQUIT;
 use const SIGTERM;
 
-final class Signal
+final class Signal extends StaticClass
 {
-    use StaticClass;
-
     /**
      * @see https://www.gnu.org/software/libc/manual/html_node/Termination-Signals.html
      */

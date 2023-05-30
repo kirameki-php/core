@@ -4,7 +4,7 @@ namespace Kirameki\Core;
 
 use Kirameki\Core\Exceptions\NotSupportedException;
 
-trait StaticClass
+abstract class StaticClass
 {
     public function __construct()
     {
