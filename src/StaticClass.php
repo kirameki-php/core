@@ -6,7 +6,7 @@ use Kirameki\Core\Exceptions\NotSupportedException;
 
 abstract class StaticClass
 {
-    public function __construct()
+    final public function __construct()
     {
         throw new NotSupportedException('Cannot instantiate static class: ' . static::class);
     }
