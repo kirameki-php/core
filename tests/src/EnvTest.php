@@ -4,6 +4,7 @@ namespace Tests\Kirameki\Core;
 
 use DateTime;
 use Kirameki\Core\Env;
+use Kirameki\Core\Exceptions\NotSupportedException;
 use Kirameki\Core\Exceptions\TypeConversionException;
 use Kirameki\Core\Exceptions\KeyNotFoundException;
 use Kirameki\Core\Exceptions\TypeMismatchException;
@@ -16,6 +17,13 @@ use const NAN;
 
 final class EnvTest extends TestCase
 {
+    public function test_instantiate(): void
+    {
+        $this->expectExceptionMessage('Cannot instantiate static class: Kirameki\Core\Env');
+        $this->expectException(NotSupportedException::class);
+        new Env();
+    }
+
     public function test_all(): void
     {
         $all = Env::all();

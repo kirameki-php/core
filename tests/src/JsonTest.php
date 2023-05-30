@@ -4,6 +4,7 @@ namespace Tests\Kirameki\Core;
 
 use DateTime;
 use Kirameki\Core\Exceptions\JsonException;
+use Kirameki\Core\Exceptions\NotSupportedException;
 use Kirameki\Core\Json;
 use Kirameki\Core\Testing\TestCase;
 use stdClass;
@@ -15,6 +16,13 @@ use function substr;
 
 final class JsonTest extends TestCase
 {
+    public function test_instantiate(): void
+    {
+        $this->expectExceptionMessage('Cannot instantiate static class: Kirameki\Core\Json');
+        $this->expectException(NotSupportedException::class);
+        new Json();
+    }
+
     public function test_encode(): void
     {
         self::assertSame('null', Json::encode(null));

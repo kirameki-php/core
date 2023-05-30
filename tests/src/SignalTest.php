@@ -3,6 +3,8 @@
 namespace Tests\Kirameki\Core;
 
 use Kirameki\Core\Exceptions\LogicException;
+use Kirameki\Core\Exceptions\NotSupportedException;
+use Kirameki\Core\Json;
 use Kirameki\Core\Signal;
 use Kirameki\Core\SignalEvent;
 use Kirameki\Core\Testing\TestCase;
@@ -19,6 +21,13 @@ final class SignalTest extends TestCase
     public function clearHandlers(): void
     {
         Signal::clearAllHandlers();
+    }
+
+    public function test_instantiate(): void
+    {
+        $this->expectExceptionMessage('Cannot instantiate static class: Kirameki\Core\Signal');
+        $this->expectException(NotSupportedException::class);
+        new Signal();
     }
 
     public function test_handle(): void

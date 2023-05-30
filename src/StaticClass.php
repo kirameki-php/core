@@ -2,9 +2,12 @@
 
 namespace Kirameki\Core;
 
+use Kirameki\Core\Exceptions\NotSupportedException;
+
 trait StaticClass
 {
-    private function __construct()
+    public function __construct()
     {
+        throw new NotSupportedException('Cannot instantiate static class: ' . static::class);
     }
 }
