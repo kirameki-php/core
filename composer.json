@@ -9,6 +9,7 @@
     "ext-posix": "*"
   },
   "require-dev": {
+    "kirameki/dumper": "dev-main",
     "monolog/monolog": "~3",
     "phpstan/phpstan": "~1",
     "phpunit/phpunit": "~10"
