@@ -5,6 +5,8 @@ namespace Kirameki\Core;
 use Kirameki\Core\Exceptions\RuntimeException;
 use function array_keys;
 use function array_map;
+use function getcwd;
+use function implode;
 use function is_resource;
 use function microtime;
 use function proc_close;
