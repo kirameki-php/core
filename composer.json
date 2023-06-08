@@ -6,7 +6,8 @@
   "require": {
     "php": ">= 8.2",
     "ext-pcntl": "*",
-    "ext-posix": "*"
+    "ext-posix": "*",
+    "kirameki/stream": "dev-main"
   },
   "require-dev": {
     "kirameki/dumper": "dev-main",

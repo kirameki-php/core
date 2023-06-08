@@ -44,6 +44,7 @@
       <path value="$PROJECT_DIR$/vendor/monolog/monolog" />
       <path value="$PROJECT_DIR$/vendor/psr/log" />
       <path value="$PROJECT_DIR$/vendor/kirameki/dumper" />
+      <path value="$PROJECT_DIR$/vendor/kirameki/stream" />
     </include_path>
   </component>
   <component name="PhpInterpreters">

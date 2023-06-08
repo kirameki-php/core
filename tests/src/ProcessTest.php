@@ -5,10 +5,7 @@ namespace Tests\Kirameki\Core;
 use Kirameki\Core\Process;
 use Kirameki\Core\Testing\TestCase;
 use function dump;
-use function sleep;
-use function str_contains;
-use const SIGINT;
-use const SIGTERM;
+use function usleep;
 
 final class ProcessTest extends TestCase
 {
@@ -16,12 +13,20 @@ final class ProcessTest extends TestCase
     {
         {
             $process = Process::run(['sh', 'test.sh']);
-            sleep(1);
-            dump($process->getStatus());
-            dump($process->close());
-            $process = null;
+            while ($process->isRunning()) {
+                $out = $process->readStdout();
+                if ($out !== '') {
+                    dump($out);
+                }
+                usleep(10_000);
+            }
+
+            dump('done');
+
+            usleep(1000);
+
+            $out = $process->readStdout();
+            dump($out);
         }
-        sleep(1);
-        dump(`ps aux`);
     }
 }
