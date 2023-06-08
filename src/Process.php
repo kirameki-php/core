@@ -38,6 +38,11 @@ class Process
     protected array $status;
 
     /**
+     * @var array{ 1: FileStream, 2: FileStream }
+     */
+    protected array $streams;
+
+    /**
      * @var int|null
      */
     protected ?int $exitCode = null;
@@ -111,10 +116,11 @@ class Process
         public readonly array $pipes,
         protected readonly ?float $timeoutAt,
         protected readonly int $termSignal,
-        protected FileStream $stdout,
-        protected FileStream $stderr,
+        FileStream $stdout,
+        FileStream $stderr,
     ) {
         $this->status = proc_get_status($process);
+        $this->streams = [1 => $stdout, 2 => $stderr];
     }
 
     /**
@@ -205,7 +211,7 @@ class Process
      */
     public function readStdout(bool $blocking = false): ?string
     {
-        return $this->readPipe(1, $this->stdout, $blocking);
+        return $this->readPipe(1, $blocking);
     }
 
     /**
@@ -214,7 +220,7 @@ class Process
      */
     public function readStderr(bool $blocking = false): ?string
     {
-        return $this->readPipe(2, $this->stderr, $blocking);
+        return $this->readPipe(2, $blocking);
     }
 
     /**
@@ -295,9 +301,9 @@ class Process
             // `proc_close(...)`. Otherwise unread data will be lost.
             // The output that has been read here is not read by the
             // user yet, so we seek back to the read position.
-            foreach ([1 => $this->stdout, 2 => $this->stderr] as $fd => $stream) {
-                $output = (string) $this->readPipe($fd, $stream);
-                $stream->seek(-strlen($output), SEEK_CUR);
+            foreach (array_keys($this->streams) as $fd) {
+                $output = (string) $this->readPipe($fd);
+                $this->streams[$fd]->seek(-strlen($output), SEEK_CUR);
             }
 
             proc_close($this->process);
@@ -333,15 +339,12 @@ class Process
 
     /**
      * @param int $fd
-     * @param FileStream $stream
      * @param bool $blocking
      * @return string|null
      */
-    protected function readPipe(
-        int $fd,
-        FileStream $stream,
-        bool $blocking = false,
-    ): ?string {
+    protected function readPipe(int $fd, bool $blocking = false): ?string {
+        $stream = $this->streams[$fd];
+
         // If the pipes are closed (They close when the process closes)
         // check if there are any output to be read from `$stream`,
         // otherwise return **null**.
