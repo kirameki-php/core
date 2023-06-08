@@ -12,7 +12,9 @@ final class ProcessTest extends TestCase
     public function test_instantiate(): void
     {
         {
-            $process = Process::run(['sh', 'test.sh']);
+            $process = Process::command(['sh', 'test.sh'])
+                ->in(__DIR__)
+                ->run();
             while ($process->isRunning()) {
                 $out = $process->readStdout();
                 if ($out !== '') {
