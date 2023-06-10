@@ -4,10 +4,7 @@
   "type": "library",
   "license": "MIT",
   "require": {
-    "php": ">= 8.2",
-    "ext-pcntl": "*",
-    "ext-posix": "*",
-    "kirameki/stream": "dev-main"
+    "php": ">= 8.2"
   },
   "require-dev": {
     "kirameki/dumper": "dev-main",

@@ -1,6 +1,7 @@
 #!/bin/bash -eux
 
-#!/bin/sh
+sleep 10
+
 i=0
 while [ $i -ne 100 ]
 do
