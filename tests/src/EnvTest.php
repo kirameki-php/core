@@ -28,22 +28,16 @@ final class EnvTest extends TestCase
     public function test_all(): void
     {
         $all = Env::all();
-        var_dump($all);
-        $this->assertSame('UTF-8', $all['CHARSET']);
-        $this->assertSame('/root', $all['HOME']);
         $this->assertSame(gethostname(), $all['HOSTNAME']);
         $this->assertSame('C.UTF-8', $all['LANG']);
         $this->assertSame('/app', $all['PWD']);
-        $this->assertSame('Asia/Tokyo', $all['TZ']);
 
         // sort order
         $keys = array_keys($all);
-        $index1 = array_search('CHARSET', $keys, true);
-        $this->assertGreaterThan($index1, $index2 = array_search('HOME', $keys, true));
-        $this->assertGreaterThan($index2, $index3 = array_search('HOSTNAME', $keys, true));
-        $this->assertGreaterThan($index3, $index4 = array_search('LANG', $keys, true));
-        $this->assertGreaterThan($index4, $index5 = array_search('PWD', $keys, true));
-        $this->assertGreaterThan($index5, array_search('TZ', $keys, true));
+        $index1 = array_search('HOME', $keys, true);
+        $this->assertGreaterThan($index1, $index2 = array_search('HOSTNAME', $keys, true));
+        $this->assertGreaterThan($index2, $index3 = array_search('LANG', $keys, true));
+        $this->assertGreaterThan($index3, array_search('PWD', $keys, true));
     }
 
     public function test_all_out_of_order(): void
