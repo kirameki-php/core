@@ -13,8 +13,11 @@ final class ProcessTest extends TestCase
     {
         {
             $process = Process::command(['sh', 'test.sh'])
-                ->in(__DIR__)
-                ->run();
+                ->timeoutIn(0.1)
+                ->start();
+
+            dump($process->getCommand());
+
             while ($process->isRunning()) {
                 $out = $process->readStdout();
                 if ($out !== '') {
@@ -29,6 +32,8 @@ final class ProcessTest extends TestCase
 
             $out = $process->readStdout();
             dump($out);
+
+            dump($process->getExitCode());
         }
     }
 }

@@ -8,27 +8,40 @@ use Kirameki\Stream\FileStream;
 use function array_keys;
 use function array_map;
 use function getcwd;
+use function implode;
+use function is_array;
 use function microtime;
 use function proc_open;
-use const SIGKILL;
+use function sprintf;
 use const SIGTERM;
 
+/**
+ * @phpstan-consistent-constructor
+ */
 class Process
 {
+    public const DEFAULT_TERM_SIGNAL = SIGTERM;
+    public const DEFAULT_TIMEOUT_SIGNAL = SIGTERM;
+    public const DEFAULT_TIMEOUT_KILL_AFTER_SEC = 10;
+
     /**
      * @param string|array<int, string> $command
-     * @param string|null $cwd
+     * @param string|null $directory
      * @param array<string, string>|null $envs
-     * @param float|null $timeoutAt
+     * @param float|DateTimeInterface|null $timeout Seconds or DateTimeInterface to set absolute timeout
      * @param int|null $timeoutSignal
+     * @param float|null $timeoutKillAfterSeconds
      * @param int|null $termSignal
+     * @param FileStream|null $stdout
+     * @param FileStream|null $stderr
      */
-    final protected function __construct(
+    protected function __construct(
         protected string|array $command,
-        protected ?string $cwd = null,
+        protected ?string $directory = null,
         protected ?array $envs = null,
-        protected ?float $timeoutAt = null,
+        protected float|DateTimeInterface|null $timeout = null,
         protected ?int $timeoutSignal = null,
+        protected ?float $timeoutKillAfterSeconds = null,
         protected ?int $termSignal = null,
         protected ?FileStream $stdout = null,
         protected ?FileStream $stderr = null,
@@ -45,12 +58,12 @@ class Process
     }
 
     /**
-     * @param non-empty-string $directory
+     * @param non-empty-string $path
      * @return $this
      */
-    public function directory(?string $directory): static
+    public function inDirectory(?string $path): static
     {
-        $this->cwd = $directory;
+        $this->directory = $path;
         return $this;
     }
 
@@ -65,22 +78,36 @@ class Process
     }
 
     /**
-     * @param int|float $seconds
+     * @param int|null $seconds
+     * @param int $signal
+     * @param int|float $killAfterSeconds
      * @return $this
      */
-    public function timeoutIn(int|float|null $seconds): static
-    {
-        $this->timeoutAt = microtime(true) + $seconds;
+    public function timeoutIn(
+        int|float|null $seconds,
+        int $signal = self::DEFAULT_TIMEOUT_SIGNAL,
+        int|float $killAfterSeconds = self::DEFAULT_TIMEOUT_KILL_AFTER_SEC,
+    ): static {
+        $this->timeout = $seconds;
+        $this->timeoutSignal = $signal;
+        $this->timeoutKillAfterSeconds = (float) $killAfterSeconds;
         return $this;
     }
 
     /**
-     * @param DateTimeInterface $dateTime
+     * @param DateTimeInterface $time
+     * @param int $signal
+     * @param int|float $killAfterSeconds
      * @return $this
      */
-    public function timeoutAt(DateTimeInterface $dateTime): static
-    {
-        $this->timeoutAt = (float) $dateTime->format('U.u');
+    public function timeoutAt(
+        ?DateTimeInterface $time,
+        int $signal = self::DEFAULT_TIMEOUT_SIGNAL,
+        int|float $killAfterSeconds = self::DEFAULT_TIMEOUT_KILL_AFTER_SEC,
+    ): static {
+        $this->timeout = $time;
+        $this->timeoutSignal = $signal;
+        $this->timeoutKillAfterSeconds = (float) $killAfterSeconds;
         return $this;
     }
 
@@ -128,46 +155,112 @@ class Process
     /**
      * @return ProcessHandler
      */
-    public function run(): ProcessHandler
+    public function start(): ProcessHandler
     {
-        $envVars = $this->envs !== null
-            ? array_map(static fn($k, $v) => "{$k}={$v}", array_keys($this->envs), $this->envs)
+        $command = $this->getCommand();
+        $cwd = $this->getDirectory();
+        $envs = $this->getEnvs();
+        $envVars = $envs !== null
+            ? array_map(static fn($k, $v) => "{$k}={$v}", array_keys($envs), $envs)
             : null;
+        $fdSpec = [["pipe", "r"], ["pipe", "w"], ["pipe", "w"]];
+        $termSignal = $this->getTermSignal();
+        $memoryLimit = 1024 * 1024;
+        $stdout = $this->stdout ?? new FileStream("php://temp/maxmemory:{$memoryLimit}");
+        $stderr = $this->stderr ?? new FileStream("php://temp/maxmemory:{$memoryLimit}");
 
-        $this->cwd ??= (string) getcwd();
-        $this->timeoutSignal ??= SIGKILL;
-        $this->termSignal ??= SIGTERM;
-
-        $descriptorSpec = [
-            ["pipe", "r"], ["pipe", "w"], ["pipe", "w"],
-        ];
-
-        $process = proc_open($this->command, $descriptorSpec, $pipes, $this->cwd, $envVars);
+        $process = proc_open($command, $fdSpec, $pipes, $cwd, $envVars);
         if ($process === false) {
             throw new RuntimeException('Failed to start process.', [
-                'command' => $this->command,
-                'cwd' => $this->cwd,
-                'envs' => $this->envs,
-                'timeoutAt' => $this->timeoutAt,
-                'timeoutSignal' => $this->timeoutSignal,
-                'termSignal' => $this->termSignal,
+                'command' => $command,
+                'cwd' => $cwd,
+                'envVars' => $envVars,
+                'termSignal' => $termSignal,
+                'stdout' => $stdout,
+                'stderr' => $stderr,
             ]);
         }
 
-        $this->stdout ??= new FileStream('php://temp/maxmemory:'.(1024 * 1024));
-        $this->stderr ??= new FileStream('php://temp/maxmemory:'.(1024 * 1024));
-
         return new ProcessHandler(
             $process,
-            $this->command,
-            $this->cwd,
+            $command,
+            $cwd,
             $envVars,
             $pipes,
-            $this->timeoutAt,
-            $this->timeoutSignal,
-            $this->termSignal,
-            $this->stdout,
-            $this->stderr,
+            $termSignal,
+            $stdout,
+            $stderr,
         );
+    }
+
+    /**
+     * @return string|array<int, string>
+     */
+    public function getCommand(): string|array
+    {
+        $timeoutCommand = $this->buildTimeoutCommand();
+        $command = $this->command;
+
+        return is_array($command)
+            ? array_merge($timeoutCommand, $command)
+            : implode(' ', $timeoutCommand) . ' ' . $command;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDirectory(): string
+    {
+        return $this->directory ?? (string) getcwd();
+    }
+
+    /**
+     * @return array<string, string>|null
+     */
+    public function getEnvs(): ?array
+    {
+        return $this->envs;
+    }
+
+    public function getTermSignal(): int
+    {
+        return $this->termSignal ?? self::DEFAULT_TERM_SIGNAL;
+    }
+
+    public function getTimeoutSignal(): int
+    {
+        return $this->timeoutSignal ?? self::DEFAULT_TIMEOUT_SIGNAL;
+    }
+
+    /**
+     * @see https://man7.org/linux/man-pages/man1/timeout.1.html
+     * @return array<int, string>
+     */
+    protected function buildTimeoutCommand(): array
+    {
+        if ($this->timeout === null) {
+            return [];
+        }
+
+        $command = ['timeout'];
+
+        if ($this->timeoutSignal !== self::DEFAULT_TIMEOUT_SIGNAL) {
+            $command[] = '--signal';
+            $command[] = (string) $this->getTimeoutSignal();
+        }
+
+        if ($this->timeoutKillAfterSeconds !== self::DEFAULT_TIMEOUT_KILL_AFTER_SEC) {
+            $command[] = '--kill-after';
+            $command[] = "{$this->timeoutKillAfterSeconds}s";
+        }
+
+        $timeoutSeconds = ($this->timeout instanceof DateTimeInterface)
+            ? microtime(true) - (float) $this->timeout->format('U.u')
+            : $this->timeout;
+
+        $timeoutSeconds = (float) sprintf("%.3f", $timeoutSeconds);
+        $command[] = "{$timeoutSeconds}s";
+
+        return $command;
     }
 }

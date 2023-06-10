@@ -48,25 +48,22 @@ class ProcessHandler
      * @param string $cwd
      * @param array<int, string>|null $envs
      * @param array<int, resource> $pipes
-     * @param float|null $timeoutAt
      * @param int $termSignal
      * @param FileStream $stdout
      * @param FileStream $stderr
      */
     public function __construct(
         protected $process,
-        public readonly string|array $command,
-        public readonly string $cwd,
-        public readonly ?array $envs,
-        public readonly array $pipes,
-        protected readonly ?float $timeoutAt,
-        protected readonly int $timeoutSignal,
+        protected readonly string|array $command,
+        protected readonly string $cwd,
+        protected readonly ?array $envs,
+        protected readonly array $pipes,
         protected readonly int $termSignal,
         FileStream $stdout,
         FileStream $stderr,
     ) {
-        $this->status = proc_get_status($process);
         $this->streams = [1 => $stdout, 2 => $stderr];
+        $this->updateStatus();
     }
 
     /**
@@ -85,10 +82,6 @@ class ProcessHandler
     public function wait(int $usleep = 10_000): int
     {
         while ($this->isRunning()) {
-            if ($this->didTimeout()) {
-                $this->signal($this->timeoutSignal);
-                break;
-            }
             usleep($usleep);
         }
 
@@ -115,11 +108,11 @@ class ProcessHandler
     }
 
     /**
-     * @param float|null $timeoutSec
+     * @param float|null $timeoutSeconds
      * @return int
      */
     public function terminate(
-        ?float $timeoutSec = null
+        ?float $timeoutSeconds = null
     ): int {
         if ($this->isDone()) {
             return $this->getExitCode();
@@ -127,8 +120,8 @@ class ProcessHandler
 
         $this->signal($this->termSignal);
 
-        if ($timeoutSec !== null) {
-            usleep((int) ($timeoutSec / 1e-6));
+        if ($timeoutSeconds !== null) {
+            usleep((int) ($timeoutSeconds / 1e-6));
             if ($this->isRunning()) {
                 $this->signal(SIGKILL);
             }
@@ -263,6 +256,9 @@ class ProcessHandler
      */
     public function getExitCode(): int
     {
+        if (!$this->status['running']) {
+            $this->updateStatus();
+        }
         return $this->exitCode ?? -1;
     }
 
