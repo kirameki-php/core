@@ -12,6 +12,7 @@ use Kirameki\Core\Testing\TestCase;
 use function array_keys;
 use function array_search;
 use function gethostname;
+use function var_dump;
 use const INF;
 use const NAN;
 
@@ -27,6 +28,7 @@ final class EnvTest extends TestCase
     public function test_all(): void
     {
         $all = Env::all();
+        var_dump($all);
         $this->assertSame('UTF-8', $all['CHARSET']);
         $this->assertSame('/root', $all['HOME']);
         $this->assertSame(gethostname(), $all['HOSTNAME']);
