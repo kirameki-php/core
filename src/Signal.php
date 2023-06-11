@@ -9,11 +9,13 @@ use function array_keys;
 use function in_array;
 use function pcntl_async_signals;
 use function pcntl_signal;
+use function spl_object_id;
 use const SIG_DFL;
 use const SIGHUP;
 use const SIGINT;
 use const SIGKILL;
 use const SIGQUIT;
+use const SIGSEGV;
 use const SIGTERM;
 
 final class Signal extends StaticClass
@@ -29,7 +31,7 @@ final class Signal extends StaticClass
     ];
 
     /**
-     * @var array<int, list<Closure(SignalEvent): mixed>>
+     * @var array<int, list<SignalCallback>>
      */
     private static array $callbacks = [];
 
@@ -44,8 +46,32 @@ final class Signal extends StaticClass
      */
     public static function handle(int $signal, Closure $callback): void
     {
-        if ($signal === SIGKILL) {
-            throw new LogicException('SIGKILL cannot be captured.', [
+        self::addCallback($signal, new SignalCallback($callback, false));
+    }
+
+    /**
+     * Adds `$callback` to the signal handler that will be executed only once.
+     *
+     * @param int $signal
+     * Signal number to handle.
+     * @param Closure(SignalEvent): mixed $callback
+     * Callback to be invoked when the signal is received.
+     * @return void
+     */
+    public static function handleOnce(int $signal, Closure $callback): void
+    {
+        self::addCallback($signal, new SignalCallback($callback, true));
+    }
+
+    /**
+     * @param int $signal
+     * @param SignalCallback $callback
+     * @return void
+     */
+    protected static function addCallback(int $signal, SignalCallback $callback): void
+    {
+        if ($signal === SIGKILL || $signal === SIGSEGV) {
+            throw new LogicException('SIGKILL and SIGSEGV cannot be captured.', [
                 'signal' => $signal,
                 'callback' => $callback,
             ]);
@@ -61,7 +87,7 @@ final class Signal extends StaticClass
             pcntl_signal($signal, self::invoke(...));
         }
 
-        self::$callbacks[$signal][] = $callback;
+        self::$callbacks[$signal][$callback->getObjectId()] = $callback;
     }
 
     /**
@@ -82,6 +108,13 @@ final class Signal extends StaticClass
 
         foreach (self::$callbacks[$signal] as $callback) {
             $callback($event);
+            if ($callback->once) {
+                unset(self::$callbacks[$signal][$callback->getObjectId()]);
+                if (self::$callbacks[$signal] === []) {
+                    unset(self::$callbacks[$signal]);
+                    pcntl_signal($signal, SIG_DFL);
+                }
+            }
         }
 
         if ($event->markedForTermination()) {
@@ -104,38 +137,15 @@ final class Signal extends StaticClass
 
     /**
      * Clears the signal handlers for the specified signal.
-     * If `$callback` is specified, that specific handler will be cleared.
-     * When there are no more handlers for the signal, the signal will be
-     * restored to its default behavior using `SIG_DFL`.
      *
      * @param int $signal
      * Signal to clear.
-     * @param Closure(SignalEvent): mixed|null $callback
-     * [Optional] Specific handler to clear.
-     * Defaults to **null**.
      * @return bool
      */
-    public static function clearHandlers(int $signal, ?Closure $callback = null): bool
+    public static function clearHandlers(int $signal): bool
     {
         if (!array_key_exists($signal, self::$callbacks)) {
             return false;
-        }
-
-        // Clear specific handler.
-        if ($callback !== null) {
-            $cleared = false;
-            foreach (self::$callbacks[$signal] as $index => $each) {
-                if ($each === $callback) {
-                    unset(self::$callbacks[$signal][$index]);
-                    $cleared = true;
-                    break;
-                }
-            }
-            if (self::$callbacks[$signal] === []) {
-                unset(self::$callbacks[$signal]);
-                pcntl_signal($signal, SIG_DFL);
-            }
-            return $cleared;
         }
 
         // Clear all handlers.

@@ -4,9 +4,11 @@
   "type": "library",
   "license": "MIT",
   "require": {
-    "php": ">= 8.2"
+    "php": ">= 8.2",
+    "ext-pcntl": "*"
   },
   "require-dev": {
+    "ext-posix": "*",
     "kirameki/dumper": "dev-main",
     "monolog/monolog": "~3",
     "phpstan/phpstan": "~1",

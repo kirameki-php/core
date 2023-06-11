@@ -4,7 +4,6 @@ namespace Tests\Kirameki\Core;
 
 use Kirameki\Core\Exceptions\LogicException;
 use Kirameki\Core\Exceptions\NotSupportedException;
-use Kirameki\Core\Json;
 use Kirameki\Core\Signal;
 use Kirameki\Core\SignalEvent;
 use Kirameki\Core\Testing\TestCase;
@@ -13,6 +12,7 @@ use function getmypid;
 use function posix_kill;
 use const SIGINT;
 use const SIGKILL;
+use const SIGSEGV;
 use const SIGUSR1;
 
 final class SignalTest extends TestCase
@@ -30,7 +30,7 @@ final class SignalTest extends TestCase
         new Signal();
     }
 
-    public function test_handle(): void
+    public function test_handle_signal(): void
     {
         $event = null;
         Signal::handle(SIGUSR1, static function(SignalEvent $e) use (&$event) {
@@ -46,7 +46,7 @@ final class SignalTest extends TestCase
         $this->assertSame([SIGUSR1], Signal::registeredSignals());
     }
 
-    public function test_handle_with_term_signals(): void
+    public function test_handle_signal_with_term_signals(): void
     {
         foreach (Signal::TermSignals as $signal) {
             $event = null;
@@ -68,10 +68,38 @@ final class SignalTest extends TestCase
 
     public function test_handle_with_kill_signal(): void
     {
-        $this->expectExceptionMessage('SIGKILL cannot be captured.');
+        $this->expectExceptionMessage('SIGKILL and SIGSEGV cannot be captured.');
         $this->expectException(LogicException::class);
 
         Signal::handle(SIGKILL, static fn() => null);
+    }
+
+    public function test_handle_with_segfault_signal(): void
+    {
+        $this->expectExceptionMessage('SIGKILL and SIGSEGV cannot be captured.');
+        $this->expectException(LogicException::class);
+
+        Signal::handle(SIGSEGV, static fn() => null);
+    }
+
+    public function test_handleOnce_signal(): void
+    {
+        $event = null;
+        $count = 0;
+        Signal::handleOnce(SIGUSR1, static function(SignalEvent $e) use (&$event, &$count) {
+            $event = $e;
+            $count++;
+        });
+        $this->assertSame([SIGUSR1], Signal::registeredSignals());
+
+        posix_kill((int) getmypid(), SIGUSR1);
+
+        $this->assertInstanceOf(SignalEvent::class, $event);
+        $this->assertSame(SIGUSR1, $event->signal);
+        $this->assertFalse($event->markedForTermination());
+        $this->assertSame(getmypid(), $event->info['pid']);
+        $this->assertSame(1, $count);
+        $this->assertSame([], Signal::registeredSignals());
     }
 
     public function test_registeredSignals(): void
@@ -93,24 +121,7 @@ final class SignalTest extends TestCase
 
     public function test_clearHandler_non_existing_signal(): void
     {
-        $callback = static fn() => null;
-        $this->assertFalse(Signal::clearHandlers(SIGINT, $callback));
+        $this->assertFalse(Signal::clearHandlers(SIGINT));
         $this->assertSame([], Signal::registeredSignals());
-    }
-
-    public function test_clearHandler_with_callback(): void
-    {
-        $callback = static fn() => 0;
-        $callbackAlt = static fn() => 1;
-        Signal::handle(SIGINT, $callback);
-        Signal::handle(SIGUSR1, $callback);
-        Signal::handle(SIGUSR1, $callbackAlt);
-        $this->assertSame([SIGINT, SIGUSR1], Signal::registeredSignals());
-        $this->assertTrue(Signal::clearHandlers(SIGUSR1, $callback));
-        $this->assertFalse(Signal::clearHandlers(SIGUSR1, $callback));
-        $this->assertSame([SIGINT, SIGUSR1], Signal::registeredSignals());
-        $this->assertTrue(Signal::clearHandlers(SIGUSR1, $callbackAlt));
-        $this->assertFalse(Signal::clearHandlers(SIGUSR1, $callbackAlt));
-        $this->assertSame([SIGINT], Signal::registeredSignals());
     }
 }
