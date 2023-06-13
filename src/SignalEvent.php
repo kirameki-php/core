@@ -8,11 +8,13 @@ class SignalEvent
      * @param int $signal
      * @param mixed $info
      * @param bool $terminate
+     * @param bool $evictCallback
      */
     public function __construct(
         public readonly int $signal,
         public readonly mixed $info,
         protected bool $terminate,
+        protected bool $evictCallback = false,
     ) {
     }
 
@@ -24,11 +26,12 @@ class SignalEvent
      * @param bool $toggle
      * [Optional] Toggles termination.
      * Defaults to **true**.
-     * @return void
+     * @return $this
      */
-    public function shouldTerminate(bool $toggle = true): void
+    public function shouldTerminate(bool $toggle = true): static
     {
         $this->terminate = $toggle;
+        return $this;
     }
 
     /**
@@ -39,5 +42,27 @@ class SignalEvent
     public function markedForTermination(): bool
     {
         return $this->terminate;
+    }
+
+    /**
+     * Mark signal callback for removal.
+     * When this is set to **true**, the signal callback will be removed.
+     *
+     * @return $this
+     */
+    public function evictCallback(bool $toggle = true): static
+    {
+        $this->evictCallback = $toggle;
+        return $this;
+    }
+
+    /**
+     * Returns whether the signal callback should be removed.
+     *
+     * @return bool
+     */
+    public function willEvictCallback(): bool
+    {
+        return $this->evictCallback;
     }
 }

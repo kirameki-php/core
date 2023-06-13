@@ -87,7 +87,8 @@ final class Signal extends StaticClass
             pcntl_signal($signal, self::invoke(...));
         }
 
-        self::$callbacks[$signal][$callback->getObjectId()] = $callback;
+        $objId = $callback->getObjectId();
+        self::$callbacks[$signal][$objId] = $callback;
     }
 
     /**
@@ -107,14 +108,21 @@ final class Signal extends StaticClass
         $event = self::createSignalEvent($signal, $siginfo);
 
         foreach (self::$callbacks[$signal] as $callback) {
-            $callback($event);
             if ($callback->once) {
+                $event->evictCallback();
+            }
+
+            $callback($event);
+
+            if ($event->willEvictCallback()) {
                 unset(self::$callbacks[$signal][$callback->getObjectId()]);
                 if (self::$callbacks[$signal] === []) {
                     unset(self::$callbacks[$signal]);
                     pcntl_signal($signal, SIG_DFL);
                 }
             }
+
+            $event->evictCallback(false);
         }
 
         if ($event->markedForTermination()) {

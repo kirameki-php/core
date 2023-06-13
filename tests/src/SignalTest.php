@@ -8,6 +8,7 @@ use Kirameki\Core\Signal;
 use Kirameki\Core\SignalEvent;
 use Kirameki\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\Before;
+use function dump;
 use function getmypid;
 use function posix_kill;
 use const SIGINT;
@@ -80,6 +81,57 @@ final class SignalTest extends TestCase
         $this->expectException(LogicException::class);
 
         Signal::handle(SIGSEGV, static fn() => null);
+    }
+
+    public function test_handle_with_eviction(): void
+    {
+        $count = 0;
+        $e1 = null;
+        Signal::handle(SIGUSR1, static function(SignalEvent $e) use (&$count, &$e1) {
+            $e1 = clone $e->evictCallback();
+            $count++;
+        });
+
+        $e2 = null;
+        Signal::handle(SIGUSR1, static function(SignalEvent $e) use (&$count, &$e2) {
+            $e2 = clone $e->evictCallback();
+            $count++;
+        });
+
+        $this->assertSame([SIGUSR1], Signal::registeredSignals());
+
+        posix_kill((int) getmypid(), SIGUSR1);
+
+        $this->assertTrue($e1?->willEvictCallback());
+        $this->assertTrue($e2?->willEvictCallback());
+        $this->assertSame(2, $count);
+        $this->assertSame([], Signal::registeredSignals());
+    }
+
+    public function test_handle_with_partial_eviction(): void
+    {
+        $count = 0;
+        $e1 = null;
+        Signal::handle(SIGUSR1, static function(SignalEvent $e) use (&$count, &$e1) {
+            $e1 = clone $e->evictCallback();
+            $count++;
+        });
+
+        $e2 = null;
+        Signal::handle(SIGUSR1, static function(SignalEvent $e) use (&$count, &$e2) {
+            $e2 = clone $e;
+            $count++;
+        });
+
+        posix_kill((int) getmypid(), SIGUSR1);
+
+        $this->assertTrue($e1?->willEvictCallback());
+        $this->assertFalse($e2?->willEvictCallback());
+        $this->assertSame([SIGUSR1], Signal::registeredSignals());
+
+        posix_kill((int) getmypid(), SIGUSR1);
+
+        $this->assertSame([SIGUSR1], Signal::registeredSignals());
     }
 
     public function test_handleOnce_signal(): void
