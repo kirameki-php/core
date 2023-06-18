@@ -88,13 +88,13 @@ final class SignalTest extends TestCase
         $count = 0;
         $e1 = null;
         Signal::handle(SIGUSR1, static function(SignalEvent $e) use (&$count, &$e1) {
-            $e1 = clone $e->evictCallback();
+            $e1 = clone $e->evictHandler();
             $count++;
         });
 
         $e2 = null;
         Signal::handle(SIGUSR1, static function(SignalEvent $e) use (&$count, &$e2) {
-            $e2 = clone $e->evictCallback();
+            $e2 = clone $e->evictHandler();
             $count++;
         });
 
@@ -102,8 +102,8 @@ final class SignalTest extends TestCase
 
         posix_kill((int) getmypid(), SIGUSR1);
 
-        $this->assertTrue($e1?->willEvictCallback());
-        $this->assertTrue($e2?->willEvictCallback());
+        $this->assertTrue($e1?->willEvictHandler());
+        $this->assertTrue($e2?->willEvictHandler());
         $this->assertSame(2, $count);
         $this->assertSame([], Signal::registeredSignals());
     }
@@ -113,7 +113,7 @@ final class SignalTest extends TestCase
         $count = 0;
         $e1 = null;
         Signal::handle(SIGUSR1, static function(SignalEvent $e) use (&$count, &$e1) {
-            $e1 = clone $e->evictCallback();
+            $e1 = clone $e->evictHandler();
             $count++;
         });
 
@@ -125,8 +125,8 @@ final class SignalTest extends TestCase
 
         posix_kill((int) getmypid(), SIGUSR1);
 
-        $this->assertTrue($e1?->willEvictCallback());
-        $this->assertFalse($e2?->willEvictCallback());
+        $this->assertTrue($e1?->willEvictHandler());
+        $this->assertFalse($e2?->willEvictHandler());
         $this->assertSame([SIGUSR1], Signal::registeredSignals());
 
         posix_kill((int) getmypid(), SIGUSR1);

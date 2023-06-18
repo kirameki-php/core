@@ -109,12 +109,12 @@ final class Signal extends StaticClass
 
         foreach (self::$callbacks[$signal] as $callback) {
             if ($callback->once) {
-                $event->evictCallback();
+                $event->evictHandler();
             }
 
             $callback($event);
 
-            if ($event->willEvictCallback()) {
+            if ($event->willEvictHandler()) {
                 unset(self::$callbacks[$signal][$callback->getObjectId()]);
                 if (self::$callbacks[$signal] === []) {
                     unset(self::$callbacks[$signal]);
@@ -122,7 +122,7 @@ final class Signal extends StaticClass
                 }
             }
 
-            $event->evictCallback(false);
+            $event->evictHandler(false);
         }
 
         if ($event->markedForTermination()) {

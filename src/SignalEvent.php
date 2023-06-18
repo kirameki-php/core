@@ -8,13 +8,13 @@ class SignalEvent
      * @param int $signal
      * @param mixed $info
      * @param bool $terminate
-     * @param bool $evictCallback
+     * @param bool $evictHandler
      */
     public function __construct(
         public readonly int $signal,
         public readonly mixed $info,
         protected bool $terminate,
-        protected bool $evictCallback = false,
+        protected bool $evictHandler = false,
     ) {
     }
 
@@ -50,9 +50,9 @@ class SignalEvent
      *
      * @return $this
      */
-    public function evictCallback(bool $toggle = true): static
+    public function evictHandler(bool $toggle = true): static
     {
-        $this->evictCallback = $toggle;
+        $this->evictHandler = $toggle;
         return $this;
     }
 
@@ -61,8 +61,8 @@ class SignalEvent
      *
      * @return bool
      */
-    public function willEvictCallback(): bool
+    public function willEvictHandler(): bool
     {
-        return $this->evictCallback;
+        return $this->evictHandler;
     }
 }
