@@ -3,6 +3,7 @@
 namespace Kirameki\Core\Testing;
 
 use Closure;
+use Kirameki\Core\Exceptions\ErrorException;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use function var_dump;
 
@@ -82,5 +83,17 @@ abstract class TestCase extends BaseTestCase
         array_map(static fn(Closure $callback) => $callback(), $this->beforeTearDownCallbacks);
         parent::tearDown();
         array_map(static fn(Closure $callback) => $callback(), $this->afterTearDownCallbacks);
+    }
+
+    /**
+     * @param int $level
+     * @return void
+     */
+    protected function throwOnError(int $level = E_ALL): void
+    {
+        set_error_handler(static function (int $severity, string $message, string $file, int $line) {
+            restore_error_handler();
+            throw new ErrorException($message, $severity, $file, $line);
+        }, $level);
     }
 }
