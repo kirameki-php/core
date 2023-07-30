@@ -35,7 +35,7 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "scripts": {
-    "coverage": "vendor/bin/phpunit --coverage-html=.coverage",
+    "coverage": "vendor/bin/phpunit --coverage-html=coverage",
     "test": "vendor/bin/phpunit --coverage-text",
     "analyze": "vendor/bin/phpstan analyse --memory-limit 1G"
   }

@@ -3,8 +3,7 @@
 /vendor
 
 # PHPUnit
-/.coverage
-/.phpunit.result.cache
+/coverage
 
 # OS related files
 .DS_Store

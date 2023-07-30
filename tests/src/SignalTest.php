@@ -167,11 +167,23 @@ final class SignalTest extends TestCase
         Signal::handle(SIGINT, $callback);
         Signal::handle(SIGUSR1, $callback);
         $this->assertSame([SIGINT, SIGUSR1], Signal::registeredSignals());
+        $this->assertTrue(Signal::clearHandler(SIGUSR1, $callback));
+        $this->assertFalse(Signal::clearHandler(SIGUSR1, $callback));
+        $this->assertFalse(Signal::clearHandler(SIGINT, static fn() => null));
+        $this->assertSame([SIGINT], Signal::registeredSignals());
+    }
+
+    public function test_clearHandlers(): void
+    {
+        $callback = static fn() => null;
+        Signal::handle(SIGINT, $callback);
+        Signal::handle(SIGUSR1, $callback);
+        $this->assertSame([SIGINT, SIGUSR1], Signal::registeredSignals());
         $this->assertTrue(Signal::clearHandlers(SIGUSR1));
         $this->assertSame([SIGINT], Signal::registeredSignals());
     }
 
-    public function test_clearHandler_non_existing_signal(): void
+    public function test_clearHandlers_non_existing_signal(): void
     {
         $this->assertFalse(Signal::clearHandlers(SIGINT));
         $this->assertSame([], Signal::registeredSignals());

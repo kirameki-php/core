@@ -144,6 +144,27 @@ final class Signal extends StaticClass
     }
 
     /**
+     * Clear the given `$callback` for the specified signal.
+     *
+     * @param int $signal
+     * @param Closure(SignalEvent): mixed $callback
+     * @return bool
+     */
+    public static function clearHandler(int $signal, Closure $callback): bool
+    {
+        foreach (self::$callbacks[$signal] ?? [] as $objId => $scb) {
+            if ($scb->callback === $callback) {
+                unset(self::$callbacks[$signal][$objId]);
+                if (self::$callbacks[$signal] === []) {
+                    self::clearHandlers($signal);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Clears the signal handlers for the specified signal.
      *
      * @param int $signal
