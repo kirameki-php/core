@@ -4,6 +4,7 @@ namespace Kirameki\Core;
 
 use Closure;
 use Kirameki\Core\Exceptions\LogicException;
+use Kirameki\Core\Exceptions\UnreachableException;
 use function array_key_exists;
 use function array_keys;
 use function in_array;
@@ -193,6 +194,50 @@ final class Signal extends StaticClass
         foreach (self::registeredSignals() as $signal) {
             self::clearHandlers($signal);
         }
+    }
+
+    /**
+     * Get the name of the signal from the signal number.
+     *
+     * @param int<1, 31> $signal
+     * @return string
+     */
+    public static function getNameOf(int $signal): string
+    {
+        return match ($signal) {
+            SIGHUP => 'SIGHUP',
+            SIGINT => 'SIGINT',
+            SIGQUIT => 'SIGQUIT',
+            SIGILL => 'SIGILL',
+            SIGTRAP => 'SIGTRAP',
+            SIGABRT => 'SIGABRT',
+            SIGBUS => 'SIGBUS',
+            SIGFPE => 'SIGFPE',
+            SIGKILL => 'SIGKILL',
+            SIGUSR1 => 'SIGUSR1',
+            SIGSEGV => 'SIGSEGV',
+            SIGUSR2 => 'SIGUSR2',
+            SIGPIPE => 'SIGPIPE',
+            SIGALRM => 'SIGALRM',
+            SIGTERM => 'SIGTERM',
+            SIGSTKFLT => 'SIGSTKFLT',
+            SIGCHLD => 'SIGCHLD',
+            SIGCONT => 'SIGCONT',
+            SIGSTOP => 'SIGSTOP',
+            SIGTSTP => 'SIGTSTP',
+            SIGTTIN => 'SIGTTIN',
+            SIGTTOU => 'SIGTTOU',
+            SIGURG => 'SIGURG',
+            SIGXCPU => 'SIGXCPU',
+            SIGXFSZ => 'SIGXFSZ',
+            SIGVTALRM => 'SIGVTALRM',
+            SIGPROF => 'SIGPROF',
+            SIGWINCH => 'SIGWINCH',
+            SIGPOLL => 'SIGPOLL',
+            SIGPWR => 'SIGPWR',
+            SIGSYS => 'SIGSYS',
+            default => throw new UnreachableException("Unknown signal: {$signal}"),
+        };
     }
 
     /**

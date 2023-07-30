@@ -4,6 +4,7 @@ namespace Tests\Kirameki\Core;
 
 use Kirameki\Core\Exceptions\LogicException;
 use Kirameki\Core\Exceptions\NotSupportedException;
+use Kirameki\Core\Exceptions\UnreachableException;
 use Kirameki\Core\Signal;
 use Kirameki\Core\SignalEvent;
 use Kirameki\Core\Testing\TestCase;
@@ -187,5 +188,47 @@ final class SignalTest extends TestCase
     {
         $this->assertFalse(Signal::clearHandlers(SIGINT));
         $this->assertSame([], Signal::registeredSignals());
+    }
+
+    public function test_getNameOf(): void
+    {
+        $this->assertSame('SIGHUP', Signal::getNameOf(SIGHUP));
+        $this->assertSame('SIGINT', Signal::getNameOf(SIGINT));
+        $this->assertSame('SIGQUIT', Signal::getNameOf(SIGQUIT));
+        $this->assertSame('SIGILL', Signal::getNameOf(SIGILL));
+        $this->assertSame('SIGTRAP', Signal::getNameOf(SIGTRAP));
+        $this->assertSame('SIGABRT', Signal::getNameOf(SIGABRT));
+        $this->assertSame('SIGBUS', Signal::getNameOf(SIGBUS));
+        $this->assertSame('SIGFPE', Signal::getNameOf(SIGFPE));
+        $this->assertSame('SIGKILL', Signal::getNameOf(SIGKILL));
+        $this->assertSame('SIGUSR1', Signal::getNameOf(SIGUSR1));
+        $this->assertSame('SIGSEGV', Signal::getNameOf(SIGSEGV));
+        $this->assertSame('SIGUSR2', Signal::getNameOf(SIGUSR2));
+        $this->assertSame('SIGPIPE', Signal::getNameOf(SIGPIPE));
+        $this->assertSame('SIGALRM', Signal::getNameOf(SIGALRM));
+        $this->assertSame('SIGTERM', Signal::getNameOf(SIGTERM));
+        $this->assertSame('SIGSTKFLT', Signal::getNameOf(SIGSTKFLT));
+        $this->assertSame('SIGCHLD', Signal::getNameOf(SIGCHLD));
+        $this->assertSame('SIGCONT', Signal::getNameOf(SIGCONT));
+        $this->assertSame('SIGSTOP', Signal::getNameOf(SIGSTOP));
+        $this->assertSame('SIGTSTP', Signal::getNameOf(SIGTSTP));
+        $this->assertSame('SIGTTIN', Signal::getNameOf(SIGTTIN));
+        $this->assertSame('SIGTTOU', Signal::getNameOf(SIGTTOU));
+        $this->assertSame('SIGURG', Signal::getNameOf(SIGURG));
+        $this->assertSame('SIGXCPU', Signal::getNameOf(SIGXCPU));
+        $this->assertSame('SIGXFSZ', Signal::getNameOf(SIGXFSZ));
+        $this->assertSame('SIGVTALRM', Signal::getNameOf(SIGVTALRM));
+        $this->assertSame('SIGPROF', Signal::getNameOf(SIGPROF));
+        $this->assertSame('SIGWINCH', Signal::getNameOf(SIGWINCH));
+        $this->assertSame('SIGPOLL', Signal::getNameOf(SIGPOLL));
+        $this->assertSame('SIGPWR', Signal::getNameOf(SIGPWR));
+        $this->assertSame('SIGSYS', Signal::getNameOf(SIGSYS));
+    }
+
+    public function test_getNameOf_non_existing_signal(): void
+    {
+        $this->expectExceptionMessage('Unknown signal: 32');
+        $this->expectException(UnreachableException::class);
+        Signal::getNameOf(32);
     }
 }
