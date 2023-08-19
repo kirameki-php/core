@@ -83,13 +83,33 @@ final class Signal extends StaticClass
             pcntl_async_signals(true);
         }
 
-        // Set signal handler trigger once.
         if (!array_key_exists($signal, self::$callbacks)) {
-            pcntl_signal($signal, self::invoke(...));
+            self::captureSignal($signal);
         }
 
         $objId = $callback->getObjectId();
         self::$callbacks[$signal][$objId] = $callback;
+    }
+
+    /**
+     * Register a callback for the given signal which will call invoke() when the signal is received.
+     *
+     * @param int $signal
+     * Signal number to be invoked.
+     * @return void
+     */
+    protected static function captureSignal(int $signal): void
+    {
+        pcntl_signal($signal, function($sig, array $info) {
+            $pid = (int) $info['pid'];
+            $exitCode = $info['status'];
+            while($pid > 0) {
+                self::invoke($sig, ['pid' => $pid, 'status' => $exitCode]);
+                // To understand why this is called, @see https://github.com/php/php-src/pull/11509
+                $pid = pcntl_wait($status, WUNTRACED | WNOHANG);
+                $exitCode = pcntl_wexitstatus($status);
+            }
+        });
     }
 
     /**
