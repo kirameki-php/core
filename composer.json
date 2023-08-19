@@ -5,8 +5,8 @@
   "license": "MIT",
   "require": {
     "php": ">= 8.2",
-    "ext-pcntl": "*",
-    "kirameki/utils": "dev-main"
+    "ext-intl": "*",
+    "ext-pcntl": "*"
   },
   "require-dev": {
     "ext-posix": "*",
