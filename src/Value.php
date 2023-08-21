@@ -4,7 +4,7 @@ namespace Kirameki\Core;
 
 use Kirameki\Core\Exceptions\InvalidTypeException;
 
-final class Type extends StaticClass
+final class Value extends StaticClass
 {
     /**
      * Get the name of the type of `$value` as string.
@@ -12,7 +12,7 @@ final class Type extends StaticClass
      * @param mixed $value
      * @return string
      */
-    public static function of(mixed $value): string
+    public static function getType(mixed $value): string
     {
         return get_debug_type($value);
     }
@@ -24,7 +24,7 @@ final class Type extends StaticClass
      * @param string $type
      * @return bool
      */
-    public static function is(mixed $value, string $type): bool
+    public static function isType(mixed $value, string $type): bool
     {
         if (!str_contains($type, '|')) {
             return self::checkIntersectionType($value, $type, $type, false);
