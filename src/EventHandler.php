@@ -93,7 +93,7 @@ class EventHandler
             if ($listener['once'] || $event->willEvictCallback()) {
                 $evicting[] = $index;
             }
-            $event->reset();
+            $event->resetAfterCall();
         }
         if ($evicting !== []) {
             foreach ($evicting as $index) {

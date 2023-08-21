@@ -40,7 +40,7 @@ abstract class Event
      *
      * @return void
      */
-    public function reset(): void
+    public function resetAfterCall(): void
     {
         $this->evictCallback(false);
     }
