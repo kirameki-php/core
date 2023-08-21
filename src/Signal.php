@@ -32,7 +32,7 @@ final class Signal extends StaticClass
     ];
 
     /**
-     * @var array<int, list<SignalCallback>>
+     * @var array<int, EventHandler<SignalEvent>>
      */
     private static array $callbacks = [];
 
@@ -47,7 +47,7 @@ final class Signal extends StaticClass
      */
     public static function handle(int $signal, Closure $callback): void
     {
-        self::addCallback($signal, new SignalCallback($callback, false));
+        self::addCallback($signal, $callback, false);
     }
 
     /**
@@ -61,15 +61,16 @@ final class Signal extends StaticClass
      */
     public static function handleOnce(int $signal, Closure $callback): void
     {
-        self::addCallback($signal, new SignalCallback($callback, true));
+        self::addCallback($signal, $callback, true);
     }
 
     /**
      * @param int $signal
-     * @param SignalCallback $callback
+     * @param Closure(SignalEvent): mixed $callback
+     * @param bool $once
      * @return void
      */
-    protected static function addCallback(int $signal, SignalCallback $callback): void
+    protected static function addCallback(int $signal, Closure $callback, bool $once): void
     {
         if ($signal === SIGKILL || $signal === SIGSEGV) {
             throw new LogicException('SIGKILL and SIGSEGV cannot be captured.', [
@@ -87,8 +88,8 @@ final class Signal extends StaticClass
             self::captureSignal($signal);
         }
 
-        $objId = $callback->getObjectId();
-        self::$callbacks[$signal][$objId] = $callback;
+        self::$callbacks[$signal] ??= new EventHandler(SignalEvent::class);
+        self::$callbacks[$signal]->listen($callback, $once);
     }
 
     /**
@@ -128,22 +129,9 @@ final class Signal extends StaticClass
     {
         $event = self::createSignalEvent($signal, $siginfo);
 
-        foreach (self::$callbacks[$signal] as $callback) {
-            if ($callback->once) {
-                $event->evictHandler();
-            }
-
-            $callback($event);
-
-            if ($event->willEvictHandler()) {
-                unset(self::$callbacks[$signal][$callback->getObjectId()]);
-                if (self::$callbacks[$signal] === []) {
-                    unset(self::$callbacks[$signal]);
-                    pcntl_signal($signal, SIG_DFL);
-                }
-            }
-
-            $event->evictHandler(false);
+        if (!self::$callbacks[$signal]->hasListeners()) {
+            unset(self::$callbacks[$signal]);
+            pcntl_signal($signal, SIG_DFL);
         }
 
         if ($event->markedForTermination()) {
@@ -166,23 +154,21 @@ final class Signal extends StaticClass
 
     /**
      * Clear the given `$callback` for the specified signal.
+     * Returns the number of callbacks removed.
      *
      * @param int $signal
      * @param Closure(SignalEvent): mixed $callback
-     * @return bool
+     * @return int
      */
-    public static function clearHandler(int $signal, Closure $callback): bool
+    public static function clearHandler(int $signal, Closure $callback): int
     {
-        foreach (self::$callbacks[$signal] ?? [] as $objId => $scb) {
-            if ($scb->callback === $callback) {
-                unset(self::$callbacks[$signal][$objId]);
-                if (self::$callbacks[$signal] === []) {
-                    self::clearHandlers($signal);
-                }
-                return true;
-            }
+        $result = self::$callbacks[$signal]->removeListener($callback);
+
+        if (!self::$callbacks[$signal]->hasListeners()) {
+            self::clearHandlers($signal);
         }
-        return false;
+
+        return $result;
     }
 
     /**

@@ -2,19 +2,17 @@
 
 namespace Kirameki\Core;
 
-class SignalEvent
+class SignalEvent extends Event
 {
     /**
      * @param int $signal
      * @param mixed $info
      * @param bool $terminate
-     * @param bool $evictHandler
      */
     public function __construct(
         public readonly int $signal,
         public readonly mixed $info,
         protected bool $terminate,
-        protected bool $evictHandler = false,
     ) {
     }
 
@@ -42,27 +40,5 @@ class SignalEvent
     public function markedForTermination(): bool
     {
         return $this->terminate;
-    }
-
-    /**
-     * Mark signal callback for removal.
-     * When this is set to **true**, the signal callback will be removed.
-     *
-     * @return $this
-     */
-    public function evictHandler(bool $toggle = true): static
-    {
-        $this->evictHandler = $toggle;
-        return $this;
-    }
-
-    /**
-     * Returns whether the signal callback should be removed.
-     *
-     * @return bool
-     */
-    public function willEvictHandler(): bool
-    {
-        return $this->evictHandler;
     }
 }
