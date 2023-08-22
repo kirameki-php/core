@@ -79,18 +79,23 @@ class EventHandler
 
     /**
      * @param TEvent $event
+     * Event to be dispatched.
      * @param bool|null $propagationStopped
-     * @return void
+     * Flag to be set to true if the event propagation was stopped.
+     * @return int<0, max>
+     * The number of listeners that were called.
      */
-    public function dispatch(Event $event, ?bool &$propagationStopped = null): void
+    public function dispatch(Event $event, ?bool &$propagationStopped = null): int
     {
         if (!is_a($event, $this->class)) {
             throw new InvalidTypeException("Expected event to be instance of {$this->class}, got " . $event::class);
         }
 
         $evicting = [];
+        $callCount = 0;
         foreach ($this->listeners as $index => $listener) {
             $listener['callback']($event);
+            $callCount++;
             if ($listener['once'] || $event->willEvictCallback()) {
                 $evicting[] = $index;
             }
@@ -108,5 +113,7 @@ class EventHandler
             }
             $this->listeners = array_values($this->listeners);
         }
+
+        return $callCount;
     }
 }
