@@ -47,7 +47,7 @@ class EventHandler
      * Returns the number of listeners that were removed.
      *
      * @param Closure(TEvent): mixed $callback
-     * @return int
+     * @return int<0, max>
      */
     public function removeListener(Closure $callback): int
     {
@@ -79,9 +79,10 @@ class EventHandler
 
     /**
      * @param TEvent $event
+     * @param bool|null $propagationStopped
      * @return void
      */
-    public function dispatch(Event $event): void
+    public function dispatch(Event $event, ?bool &$propagationStopped = null): void
     {
         if (!is_a($event, $this->class)) {
             throw new InvalidTypeException("Expected event to be instance of {$this->class}, got " . $event::class);
@@ -95,6 +96,9 @@ class EventHandler
             }
             $event->resetAfterCall();
             if ($event->isPropagationStopped()) {
+                if ($propagationStopped !== null) {
+                    $propagationStopped = true;
+                }
                 break;
             }
         }
