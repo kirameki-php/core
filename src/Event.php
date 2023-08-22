@@ -10,6 +10,11 @@ abstract class Event
     protected bool $evictCallback = false;
 
     /**
+     * @var bool
+     */
+    protected bool $propagate = true;
+
+    /**
      * Mark signal callback for removal.
      * When this is set to **true**, the signal callback will be removed.
      *
@@ -29,6 +34,22 @@ abstract class Event
     public function willEvictCallback(): bool
     {
         return $this->evictCallback;
+    }
+
+    /**
+     * @return void
+     */
+    public function stopPropagation(): void
+    {
+        $this->propagate = false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPropagationStopped(): bool
+    {
+        return !$this->propagate;
     }
 
     /**

@@ -94,6 +94,9 @@ class EventHandler
                 $evicting[] = $index;
             }
             $event->resetAfterCall();
+            if ($event->isPropagationStopped()) {
+                break;
+            }
         }
         if ($evicting !== []) {
             foreach ($evicting as $index) {
