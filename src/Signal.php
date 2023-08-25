@@ -110,17 +110,17 @@ final class Signal extends StaticClass
      *
      * @param int $signal
      * Signal number to be invoked.
-     * @param mixed $siginfo
+     * @param mixed $sigInfo
      * Information about the signal from `pcntl_signal(...)`.
      * @return void
      */
-    protected static function invoke(int $signal, mixed $siginfo): void
+    protected static function invoke(int $signal, mixed $sigInfo): void
     {
         if (!array_key_exists($signal, self::$callbacks)) {
             return;
         }
 
-        $event = self::createSignalEvent($signal, $siginfo);
+        $event = self::createSignalEvent($signal, $sigInfo);
 
         self::$callbacks[$signal]->dispatch($event);
 
@@ -232,14 +232,12 @@ final class Signal extends StaticClass
             SIGTSTP => 'SIGTSTP',
             SIGTTIN => 'SIGTTIN',
             SIGTTOU => 'SIGTTOU',
-            SIGURG => 'SIGURG',
             SIGXCPU => 'SIGXCPU',
             SIGXFSZ => 'SIGXFSZ',
             SIGVTALRM => 'SIGVTALRM',
             SIGPROF => 'SIGPROF',
             SIGWINCH => 'SIGWINCH',
             SIGPOLL => 'SIGPOLL',
-            SIGPWR => 'SIGPWR',
             SIGSYS => 'SIGSYS',
             default => throw new UnreachableException("Unknown signal: {$signal}"),
         };
