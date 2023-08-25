@@ -64,5 +64,6 @@ abstract class Event
     public function resetAfterCall(): void
     {
         $this->evictCallback(false);
+        $this->canceled = false;
     }
 }

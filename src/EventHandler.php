@@ -96,8 +96,9 @@ class EventHandler
             if ($event->willEvictCallback()) {
                 $evicting[] = $index;
             }
+            $canceled = $event->isCanceled();
             $event->resetAfterCall();
-            if ($event->isCanceled()) {
+            if ($canceled) {
                 $wasCanceled = true;
                 break;
             }

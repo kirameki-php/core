@@ -116,7 +116,9 @@ final class Signal extends StaticClass
     protected static function invoke(int $signal, mixed $sigInfo): void
     {
         if (!array_key_exists($signal, self::$callbacks)) {
+            // @codeCoverageIgnoreStart
             return;
+            // @codeCoverageIgnoreEnd
         }
 
         $event = self::createSignalEvent($signal, $sigInfo);

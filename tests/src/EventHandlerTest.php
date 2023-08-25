@@ -105,6 +105,7 @@ final class EventHandlerTest extends TestCase
         $dispatched = 0;
         $handler->listen(function(Event $e) use (&$dispatched) {
             $e->cancel();
+            $this->assertTrue($e->isCanceled());
             $dispatched++;
         });
         $handler->listen(function(Event $e) use (&$dispatched) {
@@ -112,6 +113,7 @@ final class EventHandlerTest extends TestCase
         });
 
         $this->assertSame(1, $handler->dispatch($event, $canceled));
+        $this->assertFalse($event->isCanceled());
         $this->assertSame(1, $dispatched);
         $this->assertTrue($canceled);
         $this->assertSame(1, $handler->dispatch($event));

@@ -47,6 +47,33 @@ final class SignalTest extends TestCase
         $this->assertSame([SIGUSR1], Signal::registeredSignals());
     }
 
+    public function test_handle_SIGCHLD(): void
+    {
+        $event = null;
+        Signal::handle(SIGCHLD, static function(SignalEvent $e) use (&$event) {
+            $event = $e;
+        });
+        $proc = proc_open('exit 1', [], $pipes) ?: throw new UnreachableException();
+        $info = proc_get_status($proc);
+        while (proc_get_status($proc)['running']) {
+            usleep(1000);
+        }
+        $this->assertSame($event?->signal, SIGCHLD);
+        $this->assertSame($info['pid'], $event?->info['pid']);
+        $this->assertSame(1, $event?->info['status'] ?? 0);
+    }
+
+    public function test_invoke_non_registered(): void
+    {
+        $event = null;
+        Signal::handle(SIGUSR1, static function(SignalEvent $e) use (&$event) {
+            $event = $e;
+        });
+        $proc = proc_open('exit 1', [], $pipes);
+        proc_close($proc);
+        $this->assertNull($event);
+    }
+
     public function test_handle_signal_with_term_signals(): void
     {
         foreach (Signal::TermSignals as $signal) {
