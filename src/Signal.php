@@ -47,30 +47,15 @@ final class Signal extends StaticClass
      */
     public static function handle(int $signal, Closure $callback): void
     {
-        self::addCallback($signal, $callback, false);
-    }
-
-    /**
-     * Adds `$callback` to the signal handler that will be executed only once.
-     *
-     * @param int $signal
-     * Signal number to handle.
-     * @param Closure(SignalEvent): mixed $callback
-     * Callback to be invoked when the signal is received.
-     * @return void
-     */
-    public static function handleOnce(int $signal, Closure $callback): void
-    {
-        self::addCallback($signal, $callback, true);
+        self::addCallback($signal, $callback);
     }
 
     /**
      * @param int $signal
      * @param Closure(SignalEvent): mixed $callback
-     * @param bool $once
      * @return void
      */
-    protected static function addCallback(int $signal, Closure $callback, bool $once): void
+    protected static function addCallback(int $signal, Closure $callback): void
     {
         if ($signal === SIGKILL || $signal === SIGSEGV) {
             throw new LogicException('SIGKILL and SIGSEGV cannot be captured.', [
@@ -89,7 +74,7 @@ final class Signal extends StaticClass
         }
 
         self::$callbacks[$signal] ??= new EventHandler(SignalEvent::class);
-        self::$callbacks[$signal]->listen($callback, $once);
+        self::$callbacks[$signal]->listen($callback);
     }
 
     /**
@@ -102,13 +87,17 @@ final class Signal extends StaticClass
     protected static function captureSignal(int $signal): void
     {
         pcntl_signal($signal, function($sig, array $info) {
-            $pid = (int) $info['pid'];
-            $exitCode = $info['status'];
-            while($pid > 0) {
-                self::invoke($sig, ['pid' => $pid, 'status' => $exitCode]);
-                // To understand why this is called, @see https://github.com/php/php-src/pull/11509
-                $pid = pcntl_wait($status, WUNTRACED | WNOHANG);
-                $exitCode = pcntl_wexitstatus($status);
+            if ($sig === SIGCHLD) {
+                $pid = (int) $info['pid'];
+                $exitCode = $info['status'];
+                while($pid > 0) {
+                    self::invoke($sig, ['pid' => $pid, 'status' => $exitCode]);
+                    // To understand why this is called, @see https://github.com/php/php-src/pull/11509
+                    $pid = pcntl_wait($status, WUNTRACED | WNOHANG);
+                    $exitCode = pcntl_wexitstatus($status);
+                }
+            } else {
+                self::invoke($sig, $info);
             }
         });
     }
@@ -127,7 +116,13 @@ final class Signal extends StaticClass
      */
     protected static function invoke(int $signal, mixed $siginfo): void
     {
+        if (!array_key_exists($signal, self::$callbacks)) {
+            return;
+        }
+
         $event = self::createSignalEvent($signal, $siginfo);
+
+        self::$callbacks[$signal]->dispatch($event);
 
         if (!self::$callbacks[$signal]->hasListeners()) {
             unset(self::$callbacks[$signal]);
@@ -162,6 +157,10 @@ final class Signal extends StaticClass
      */
     public static function clearHandler(int $signal, Closure $callback): int
     {
+        if (!array_key_exists($signal, self::$callbacks)) {
+            return 0;
+        }
+
         $result = self::$callbacks[$signal]->removeListener($callback);
 
         if (!self::$callbacks[$signal]->hasListeners()) {
