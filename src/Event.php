@@ -12,7 +12,7 @@ abstract class Event
     /**
      * @var bool
      */
-    protected bool $propagate = true;
+    protected bool $canceled = true;
 
     /**
      * Mark signal callback for removal.
@@ -39,17 +39,17 @@ abstract class Event
     /**
      * @return void
      */
-    public function stopPropagation(): void
+    public function cancel(): void
     {
-        $this->propagate = false;
+        $this->canceled = false;
     }
 
     /**
      * @return bool
      */
-    public function isPropagationStopped(): bool
+    public function isCanceled(): bool
     {
-        return !$this->propagate;
+        return !$this->canceled;
     }
 
     /**

@@ -12,7 +12,7 @@ class EventHandler
 {
     /**
      * @param class-string<TEvent> $class
-     * @param list<array{ callback: Closure(TEvent): mixed, once: bool }> $listeners
+     * @param list<Closure(TEvent): mixed> $listeners
      */
     public function __construct(
         protected string $class = Event::class,
@@ -26,21 +26,11 @@ class EventHandler
 
     /**
      * @param Closure(TEvent): mixed $callback
-     * @param bool $once
      * @return void
      */
-    public function listen(Closure $callback, bool $once = false): void
+    public function listen(Closure $callback): void
     {
-        $this->listeners[] = ['callback' => $callback, 'once' => $once];
-    }
-
-    /**
-     * @param Closure(TEvent): mixed $callback
-     * @return void
-     */
-    public function listenOnce(Closure $callback): void
-    {
-        $this->listen($callback, true);
+        $this->listeners[] = $callback;
     }
 
     /**
@@ -53,7 +43,7 @@ class EventHandler
     {
         $count = 0;
         foreach ($this->listeners as $index => $listener) {
-            if ($listener['callback'] === $callback) {
+            if ($listener === $callback) {
                 unset($this->listeners[$index]);
                 $count++;
             }
@@ -80,12 +70,12 @@ class EventHandler
     /**
      * @param TEvent $event
      * Event to be dispatched.
-     * @param bool|null $propagationStopped
+     * @param bool|null $wasCanceled
      * Flag to be set to true if the event propagation was stopped.
      * @return int<0, max>
      * The number of listeners that were called.
      */
-    public function dispatch(Event $event, ?bool &$propagationStopped = null): int
+    public function dispatch(Event $event, ?bool &$wasCanceled = null): int
     {
         if (!is_a($event, $this->class)) {
             throw new InvalidTypeException("Expected event to be instance of {$this->class}, got " . $event::class);
@@ -94,15 +84,15 @@ class EventHandler
         $evicting = [];
         $callCount = 0;
         foreach ($this->listeners as $index => $listener) {
-            $listener['callback']($event);
+            $listener($event);
             $callCount++;
-            if ($listener['once'] || $event->willEvictCallback()) {
+            if ($event->willEvictCallback()) {
                 $evicting[] = $index;
             }
             $event->resetAfterCall();
-            if ($event->isPropagationStopped()) {
-                if ($propagationStopped !== null) {
-                    $propagationStopped = true;
+            if ($event->isCanceled()) {
+                if ($wasCanceled !== null) {
+                    $wasCanceled = true;
                 }
                 break;
             }
