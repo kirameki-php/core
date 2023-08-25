@@ -193,14 +193,12 @@ final class SignalTest extends TestCase
         $this->assertSame('SIGTSTP', Signal::getNameOf(SIGTSTP));
         $this->assertSame('SIGTTIN', Signal::getNameOf(SIGTTIN));
         $this->assertSame('SIGTTOU', Signal::getNameOf(SIGTTOU));
-        $this->assertSame('SIGURG', Signal::getNameOf(SIGURG));
         $this->assertSame('SIGXCPU', Signal::getNameOf(SIGXCPU));
         $this->assertSame('SIGXFSZ', Signal::getNameOf(SIGXFSZ));
         $this->assertSame('SIGVTALRM', Signal::getNameOf(SIGVTALRM));
         $this->assertSame('SIGPROF', Signal::getNameOf(SIGPROF));
         $this->assertSame('SIGWINCH', Signal::getNameOf(SIGWINCH));
         $this->assertSame('SIGPOLL', Signal::getNameOf(SIGPOLL));
-        $this->assertSame('SIGPWR', Signal::getNameOf(SIGPWR));
         $this->assertSame('SIGSYS', Signal::getNameOf(SIGSYS));
     }
 

@@ -10,7 +10,6 @@ use function array_keys;
 use function in_array;
 use function pcntl_async_signals;
 use function pcntl_signal;
-use function spl_object_id;
 use const SIG_DFL;
 use const SIGHUP;
 use const SIGINT;

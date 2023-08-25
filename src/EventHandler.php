@@ -15,7 +15,7 @@ class EventHandler
      * @param list<Closure(TEvent): mixed> $listeners
      */
     public function __construct(
-        protected string $class = Event::class,
+        public string $class = Event::class,
         protected array $listeners = [],
     )
     {
@@ -54,9 +54,16 @@ class EventHandler
         return $count;
     }
 
-    public function removeAllListeners(): void
+    /**
+     * Returns the number of listeners that were removed.
+     *
+     * @return int<0, max>
+     */
+    public function removeAllListeners(): int
     {
+        $count = count($this->listeners);
         $this->listeners = [];
+        return $count;
     }
 
     /**
@@ -75,7 +82,7 @@ class EventHandler
      * @return int<0, max>
      * The number of listeners that were called.
      */
-    public function dispatch(Event $event, ?bool &$wasCanceled = null): int
+    public function dispatch(Event $event, ?bool &$wasCanceled = false): int
     {
         if (!is_a($event, $this->class)) {
             throw new InvalidTypeException("Expected event to be instance of {$this->class}, got " . $event::class);
@@ -91,9 +98,7 @@ class EventHandler
             }
             $event->resetAfterCall();
             if ($event->isCanceled()) {
-                if ($wasCanceled !== null) {
-                    $wasCanceled = true;
-                }
+                $wasCanceled = true;
                 break;
             }
         }

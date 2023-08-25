@@ -12,7 +12,7 @@ abstract class Event
     /**
      * @var bool
      */
-    protected bool $canceled = true;
+    protected bool $canceled = false;
 
     /**
      * Mark signal callback for removal.
@@ -41,7 +41,7 @@ abstract class Event
      */
     public function cancel(): void
     {
-        $this->canceled = false;
+        $this->canceled = true;
     }
 
     /**
@@ -49,7 +49,7 @@ abstract class Event
      */
     public function isCanceled(): bool
     {
-        return !$this->canceled;
+        return $this->canceled;
     }
 
     /**
