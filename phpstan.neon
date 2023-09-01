@@ -4,3 +4,7 @@ parameters:
         - src/
     excludePaths:
         - tests/*
+    ignoreErrors:
+        - message: "#^Template type TEvent is declared as covariant, but occurs in contravariant position in parameter event of method Kirameki\\\\Core\\\\EventHandler\\:\\:dispatch\\(\\)\\.$#"
+          count: 1
+          path: src/EventHandler.php

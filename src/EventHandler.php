@@ -6,7 +6,7 @@ use Closure;
 use Kirameki\Core\Exceptions\InvalidTypeException;
 
 /**
- * @template TEvent of Event
+ * @template-covariant TEvent of Event
  */
 class EventHandler
 {
