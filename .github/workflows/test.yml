@@ -14,7 +14,7 @@ jobs:
       with:
         bootstrap: vendor/autoload.php
         configuration: phpunit.xml
-        php_extensions: mbstring pcntl xdebug
+        php_extensions: intl mbstring pcntl xdebug
         args: --coverage-clover ./coverage.xml
     - uses: php-actions/phpstan@v3
       with:
