@@ -5,6 +5,7 @@ namespace Kirameki\Core;
 use Kirameki\Core\Exceptions\KeyNotFoundException;
 use Kirameki\Core\Exceptions\TypeConversionException;
 use Kirameki\Core\Exceptions\TypeMismatchException;
+use function array_key_exists;
 use function filter_var;
 use function gettype;
 use function is_bool;
@@ -17,6 +18,8 @@ use function ksort;
 use function preg_match;
 use const FILTER_NULL_ON_FAILURE;
 use const FILTER_VALIDATE_INT;
+use const INF;
+use const NAN;
 
 class Env extends StaticClass
 {

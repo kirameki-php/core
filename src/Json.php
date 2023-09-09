@@ -34,9 +34,9 @@ class Json extends StaticClass
     public static function encode(mixed $data, bool $formatted = false): string
     {
         $flags = JSON_PRESERVE_ZERO_FRACTION
-                 | JSON_UNESCAPED_UNICODE
-                 | JSON_UNESCAPED_SLASHES
-                 | JSON_THROW_ON_ERROR;
+               | JSON_UNESCAPED_UNICODE
+               | JSON_UNESCAPED_SLASHES
+               | JSON_THROW_ON_ERROR;
 
         if ($formatted) {
             $flags |= JSON_PRETTY_PRINT;

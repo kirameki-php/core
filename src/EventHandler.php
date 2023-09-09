@@ -4,6 +4,9 @@ namespace Kirameki\Core;
 
 use Closure;
 use Kirameki\Core\Exceptions\InvalidTypeException;
+use function array_values;
+use function count;
+use function is_a;
 
 /**
  * @template-covariant TEvent of Event
