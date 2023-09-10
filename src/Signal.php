@@ -12,6 +12,7 @@ use function pcntl_async_signals;
 use function pcntl_signal;
 use function pcntl_wait;
 use function pcntl_wexitstatus;
+use function pcntl_wtermsig;
 use const SIG_DFL;
 use const SIGABRT;
 use const SIGALRM;
@@ -116,11 +117,13 @@ final class Signal extends StaticClass
             if ($sig === SIGCHLD) {
                 $pid = (int) $info['pid'];
                 $exitCode = $info['status'];
+                $code = $info['code'];
                 while($pid > 0) {
-                    self::invoke($sig, ['pid' => $pid, 'status' => $exitCode]);
+                    self::invoke($sig, ['pid' => $pid, 'status' => $exitCode, 'code' => $code]);
                     // To understand why this is called, @see https://github.com/php/php-src/pull/11509
                     $pid = pcntl_wait($status, WUNTRACED | WNOHANG);
                     $exitCode = pcntl_wexitstatus($status);
+                    $code = pcntl_wtermsig($status);
                 }
             } else {
                 self::invoke($sig, $info);
