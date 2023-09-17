@@ -11,9 +11,9 @@ use Kirameki\Core\Exceptions\InvalidTypeException;
 use Kirameki\Core\Testing\TestCase;
 use Kirameki\Core\Value;
 use stdClass;
-use Tests\Kirameki\Core\_TypeTest\AbstractClass;
-use Tests\Kirameki\Core\_TypeTest\ConcreteClass;
-use Tests\Kirameki\Core\_TypeTest\IntersectClass;
+use Tests\Kirameki\Core\_ValueTest\AbstractClass;
+use Tests\Kirameki\Core\_ValueTest\ConcreteClass;
+use Tests\Kirameki\Core\_ValueTest\IntersectClass;
 use Traversable;
 
 final class ValueTest extends TestCase
