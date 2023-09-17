@@ -6,12 +6,15 @@ use Closure;
 use Kirameki\Core\Exceptions\LogicException;
 use Kirameki\Core\Exceptions\UnreachableException;
 use function array_keys;
+use function compact;
 use function in_array;
 use function pcntl_async_signals;
 use function pcntl_signal;
 use function pcntl_wait;
 use function pcntl_wexitstatus;
+use function pcntl_wifsignaled;
 use function pcntl_wtermsig;
+use const CLD_EXITED;
 use const SIG_DFL;
 use const SIGABRT;
 use const SIGALRM;
@@ -114,15 +117,16 @@ final class Signal extends StaticClass
     {
         pcntl_signal($signal, function($sig, array $info) {
             if ($sig === SIGCHLD) {
-                $pid = (int) $info['pid'];
-                $exitCode = $info['status'];
-                $code = $info['code'];
-                while($pid > 0) {
-                    self::invoke($sig, ['pid' => $pid, 'status' => $exitCode, 'code' => $code]);
+                while(true) {
                     // To understand why this is called, @see https://github.com/php/php-src/pull/11509
-                    $pid = pcntl_wait($status, WUNTRACED | WNOHANG);
-                    $exitCode = pcntl_wexitstatus($status);
-                    $code = pcntl_wtermsig($status);
+                    $pid = pcntl_wait($w, WUNTRACED | WNOHANG);
+                    if ($pid > 0) {
+                        $status = pcntl_wexitstatus($w);
+                        $code = pcntl_wifsignaled($w) ? pcntl_wtermsig($w) : CLD_EXITED;
+                        self::invoke($sig, compact('pid', 'status', 'code'));
+                    } else {
+                        break;
+                    }
                 }
             } else {
                 self::invoke($sig, $info);
