@@ -16,7 +16,7 @@ use Tests\Kirameki\Core\_TypeTest\ConcreteClass;
 use Tests\Kirameki\Core\_TypeTest\IntersectClass;
 use Traversable;
 
-final class TypeTest extends TestCase
+final class ValueTest extends TestCase
 {
     public function test_of(): void
     {

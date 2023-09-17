@@ -157,4 +157,23 @@ final class EventHandlerTest extends TestCase
         $this->assertSame(2, $handler->removeAllListeners());
         $this->assertFalse($handler->hasListeners());
     }
+
+    public function test_hasListener(): void
+    {
+        $handler = new EventHandler();
+        $this->assertSame(Event::class, $handler->class);
+        $this->assertFalse($handler->hasListeners());
+        $handler->listen(fn() => 1);
+        $this->assertTrue($handler->hasListeners());
+    }
+
+    public function test_hasNoListener(): void
+    {
+        $handler = new EventHandler();
+        $this->assertSame(Event::class, $handler->class);
+        $this->assertTrue($handler->hasNoListeners());
+
+        $handler->listen(fn() => 1);
+        $this->assertFalse($handler->hasNoListeners());
+    }
 }

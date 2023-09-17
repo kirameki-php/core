@@ -5,7 +5,6 @@ namespace Kirameki\Core;
 use Closure;
 use Kirameki\Core\Exceptions\LogicException;
 use Kirameki\Core\Exceptions\UnreachableException;
-use function array_key_exists;
 use function array_keys;
 use function in_array;
 use function pcntl_async_signals;
@@ -96,7 +95,7 @@ final class Signal extends StaticClass
             pcntl_async_signals(true);
         }
 
-        if (!array_key_exists($signal, self::$callbacks)) {
+        if (!isset(self::$callbacks[$signal])) {
             self::captureSignal($signal);
         }
 
@@ -145,7 +144,7 @@ final class Signal extends StaticClass
      */
     protected static function invoke(int $signal, mixed $sigInfo): void
     {
-        if (!array_key_exists($signal, self::$callbacks)) {
+        if (!isset(self::$callbacks[$signal])) {
             // @codeCoverageIgnoreStart
             return;
             // @codeCoverageIgnoreEnd
@@ -188,13 +187,13 @@ final class Signal extends StaticClass
      */
     public static function clearHandler(int $signal, Closure $callback): int
     {
-        if (!array_key_exists($signal, self::$callbacks)) {
+        if (!isset(self::$callbacks[$signal])) {
             return 0;
         }
 
         $result = self::$callbacks[$signal]->removeListener($callback);
 
-        if (!self::$callbacks[$signal]->hasListeners()) {
+        if (self::$callbacks[$signal]->hasNoListeners()) {
             self::clearHandlers($signal);
         }
 
@@ -210,7 +209,7 @@ final class Signal extends StaticClass
      */
     public static function clearHandlers(int $signal): bool
     {
-        if (!array_key_exists($signal, self::$callbacks)) {
+        if (!isset(self::$callbacks[$signal])) {
             return false;
         }
 

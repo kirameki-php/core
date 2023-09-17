@@ -78,6 +78,14 @@ class EventHandler
     }
 
     /**
+     * @return bool
+     */
+    public function hasNoListeners(): bool
+    {
+        return !$this->hasListeners();
+    }
+
+    /**
      * @param TEvent $event
      * Event to be dispatched.
      * @param bool|null $wasCanceled
