@@ -14,9 +14,11 @@ use function pcntl_wait;
 use function pcntl_wexitstatus;
 use function pcntl_wifexited;
 use function pcntl_wifsignaled;
+use function pcntl_wifstopped;
 use function pcntl_wtermsig;
 use const CLD_EXITED;
 use const CLD_KILLED;
+use const CLD_STOPPED;
 use const SIG_DFL;
 use const SIGABRT;
 use const SIGALRM;
@@ -121,14 +123,19 @@ final class Signal extends StaticClass
             if ($sig === SIGCHLD) {
                 while(true) {
                     // To understand why this is called, @see https://github.com/php/php-src/pull/11509
-                    $pid = pcntl_wait($w, WUNTRACED | WNOHANG);
+                    $pid = pcntl_wait($waitInfo, WUNTRACED | WNOHANG);
                     if ($pid > 0) {
-                        if (pcntl_wifsignaled($w)) {
-                            $status = pcntl_wtermsig($w);
+                        if (pcntl_wifsignaled($waitInfo)) {
+                            $status = pcntl_wtermsig($waitInfo);
                             $code = CLD_KILLED;
-                        } else {
-                            $status = pcntl_wexitstatus($w);
+                        } elseif (pcntl_wifstopped($waitInfo)) {
+                            $status = SIGSTOP;
+                            $code = CLD_STOPPED;
+                        } elseif (pcntl_wifexited($waitInfo)) {
+                            $status = pcntl_wexitstatus($waitInfo);
                             $code = CLD_EXITED;
+                        } else {
+                            continue;
                         }
                         self::invoke($sig, compact('pid', 'status', 'code'));
                     } else {
