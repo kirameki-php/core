@@ -29,15 +29,15 @@ final class EnvTest extends TestCase
     {
         $all = Env::all();
         $this->assertSame(gethostname(), $all['HOSTNAME']);
-        $this->assertSame('C.UTF-8', $all['LANG']);
         $this->assertSame('/app', $all['PWD']);
+        $this->assertSame('2', $all['SHLVL']);
 
         // sort order
         $keys = array_keys($all);
         $index1 = array_search('HOME', $keys, true);
         $this->assertGreaterThan($index1, $index2 = array_search('HOSTNAME', $keys, true));
-        $this->assertGreaterThan($index2, $index3 = array_search('LANG', $keys, true));
-        $this->assertGreaterThan($index3, array_search('PWD', $keys, true));
+        $this->assertGreaterThan($index2, $index3 = array_search('PWD', $keys, true));
+        $this->assertGreaterThan($index3, array_search('SHLVL', $keys, true));
     }
 
     public function test_all_out_of_order(): void
