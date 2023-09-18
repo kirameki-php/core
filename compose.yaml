@@ -2,7 +2,8 @@ services:
   app:
     image: toyama4649/kirameki-php-cli:latest
     environment:
-      TZ: Asia/Tokyo
+      LANG: "C.UTF-8"
+      TZ: "Asia/Tokyo"
     volumes:
       - type: bind
         source: .
