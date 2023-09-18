@@ -65,12 +65,12 @@ final class SignalTest extends TestCase
         });
         $proc = proc_open('exit 1', [], $pipes) ?: throw new UnreachableException();
         $info = proc_get_status($proc);
-        while (proc_get_status($proc)['running']) {
+        while ($event === null) {
             usleep(1000);
         }
-        $this->assertSame($event?->signal, SIGCHLD);
-        $this->assertSame($info['pid'], $event?->info['pid']);
-        $this->assertSame(1, $event?->info['status'] ?? 0);
+        $this->assertSame($event->signal, SIGCHLD);
+        $this->assertSame($info['pid'], $event->info['pid']);
+        $this->assertSame(1, $event->info['status'] ?? 0);
         $this->assertSame(CLD_EXITED, $event?->info['code'] ?? 0);
     }
 
@@ -83,13 +83,13 @@ final class SignalTest extends TestCase
         $proc = proc_open('sleep 3', [], $pipes) ?: throw new UnreachableException();
         proc_terminate($proc, SIGKILL);
         $info = proc_get_status($proc);
-        while (proc_get_status($proc)['running']) {
+        while ($event === null) {
             usleep(1000);
         }
-        $this->assertSame($event?->signal, SIGCHLD);
-        $this->assertSame($info['pid'], $event?->info['pid']);
-        $this->assertSame(SIGKILL, $event?->info['status'] ?? 0);
-        $this->assertSame(CLD_KILLED, $event?->info['code'] ?? 0);
+        $this->assertSame($event->signal, SIGCHLD);
+        $this->assertSame($info['pid'], $event->info['pid']);
+        $this->assertSame(SIGKILL, $event->info['status'] ?? 0);
+        $this->assertSame(CLD_KILLED, $event->info['code'] ?? 0);
     }
 
     public function test_handle_SIGCHLD_stopped(): void
@@ -102,10 +102,13 @@ final class SignalTest extends TestCase
         proc_terminate($proc, SIGSTOP);
         $this->runBeforeTearDown(static fn() => proc_terminate($proc, SIGKILL));
         $info = proc_get_status($proc);
-        $this->assertSame($event?->signal, SIGCHLD);
-        $this->assertSame($info['pid'], $event?->info['pid']);
-        $this->assertSame(SIGSTOP, $event?->info['status'] ?? 0);
-        $this->assertSame(CLD_STOPPED, $event?->info['code'] ?? 0);
+        while ($event === null) {
+            usleep(1000);
+        }
+        $this->assertSame($event->signal, SIGCHLD);
+        $this->assertSame($info['pid'], $event->info['pid']);
+        $this->assertSame(SIGSTOP, $event->info['status'] ?? 0);
+        $this->assertSame(CLD_STOPPED, $event->info['code'] ?? 0);
     }
 
     public function test_invoke_non_registered(): void
