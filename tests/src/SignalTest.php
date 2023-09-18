@@ -9,11 +9,21 @@ use Kirameki\Core\Signal;
 use Kirameki\Core\SignalEvent;
 use Kirameki\Core\Testing\TestCase;
 use PHPUnit\Framework\Attributes\Before;
+use function dump;
 use function getmypid;
 use function posix_kill;
+use function proc_get_status;
+use function proc_open;
+use function proc_terminate;
+use function usleep;
+use const CLD_EXITED;
+use const CLD_KILLED;
+use const CLD_STOPPED;
+use const SIGCHLD;
 use const SIGINT;
 use const SIGKILL;
 use const SIGSEGV;
+use const SIGSTOP;
 use const SIGUSR1;
 
 final class SignalTest extends TestCase
@@ -47,7 +57,7 @@ final class SignalTest extends TestCase
         $this->assertSame([SIGUSR1], Signal::registeredSignals());
     }
 
-    public function test_handle_SIGCHLD(): void
+    public function test_handle_SIGCHLD_exited(): void
     {
         $event = null;
         Signal::handle(SIGCHLD, static function(SignalEvent $e) use (&$event) {
@@ -61,6 +71,41 @@ final class SignalTest extends TestCase
         $this->assertSame($event?->signal, SIGCHLD);
         $this->assertSame($info['pid'], $event?->info['pid']);
         $this->assertSame(1, $event?->info['status'] ?? 0);
+        $this->assertSame(CLD_EXITED, $event?->info['code'] ?? 0);
+    }
+
+    public function test_handle_SIGCHLD_killed(): void
+    {
+        $event = null;
+        Signal::handle(SIGCHLD, static function(SignalEvent $e) use (&$event) {
+            $event = $e;
+        });
+        $proc = proc_open('sleep 3', [], $pipes) ?: throw new UnreachableException();
+        proc_terminate($proc, SIGKILL);
+        $info = proc_get_status($proc);
+        while (proc_get_status($proc)['running']) {
+            usleep(1000);
+        }
+        $this->assertSame($event?->signal, SIGCHLD);
+        $this->assertSame($info['pid'], $event?->info['pid']);
+        $this->assertSame(SIGKILL, $event?->info['status'] ?? 0);
+        $this->assertSame(CLD_KILLED, $event?->info['code'] ?? 0);
+    }
+
+    public function test_handle_SIGCHLD_stopped(): void
+    {
+        $event = null;
+        Signal::handle(SIGCHLD, static function(SignalEvent $e) use (&$event) {
+            $event = $e;
+        });
+        $proc = proc_open('sleep 0.1', [], $pipes) ?: throw new UnreachableException();
+        proc_terminate($proc, SIGSTOP);
+        $this->runBeforeTearDown(static fn() => proc_terminate($proc, SIGKILL));
+        $info = proc_get_status($proc);
+        $this->assertSame($event?->signal, SIGCHLD);
+        $this->assertSame($info['pid'], $event?->info['pid']);
+        $this->assertSame(SIGSTOP, $event?->info['status'] ?? 0);
+        $this->assertSame(CLD_STOPPED, $event?->info['code'] ?? 0);
     }
 
     public function test_invoke_non_registered(): void

@@ -120,20 +120,21 @@ final class Signal extends StaticClass
     protected static function captureSignal(int $signal): void
     {
         pcntl_signal($signal, function($sig, array $info) {
+            // SIGCHLD needs special handling.
+            // @see https://github.com/php/php-src/pull/11509
             if ($sig === SIGCHLD) {
                 while(true) {
-                    // To understand why this is called, @see https://github.com/php/php-src/pull/11509
                     $pid = pcntl_wait($waitInfo, WUNTRACED | WNOHANG);
                     if ($pid > 0) {
-                        if (pcntl_wifsignaled($waitInfo)) {
+                        if (pcntl_wifexited($waitInfo)) {
+                            $status = pcntl_wexitstatus($waitInfo);
+                            $code = CLD_EXITED;
+                        } elseif (pcntl_wifsignaled($waitInfo)) {
                             $status = pcntl_wtermsig($waitInfo);
                             $code = CLD_KILLED;
                         } elseif (pcntl_wifstopped($waitInfo)) {
                             $status = SIGSTOP;
                             $code = CLD_STOPPED;
-                        } elseif (pcntl_wifexited($waitInfo)) {
-                            $status = pcntl_wexitstatus($waitInfo);
-                            $code = CLD_EXITED;
                         } else {
                             continue;
                         }
