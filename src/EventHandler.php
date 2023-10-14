@@ -4,6 +4,7 @@ namespace Kirameki\Core;
 
 use Closure;
 use Kirameki\Core\Exceptions\InvalidTypeException;
+use function array_unshift;
 use function array_values;
 use function count;
 use function is_a;
@@ -28,13 +29,27 @@ class EventHandler
     }
 
     /**
+     * Append a listener to the end of the list.
+     *
      * @param Closure(TEvent): mixed $callback
      * @param bool $once
      * @return void
      */
-    public function listen(Closure $callback, bool $once = false): void
+    public function append(Closure $callback, bool $once = false): void
     {
         $this->listeners[] = new EventCallback($callback, $once);
+    }
+
+    /**
+     * Prepend a listener to the end of the list.
+     *
+     * @param Closure(TEvent): mixed $callback
+     * @param bool $once
+     * @return void
+     */
+    public function prepend(Closure $callback, bool $once = false): void
+    {
+        array_unshift($this->listeners, new EventCallback($callback, $once));
     }
 
     /**

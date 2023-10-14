@@ -107,7 +107,7 @@ final class Signal extends StaticClass
         }
 
         self::$callbacks[$signal] ??= new EventHandler(SignalEvent::class);
-        self::$callbacks[$signal]->listen($callback);
+        self::$callbacks[$signal]->append($callback);
     }
 
     /**

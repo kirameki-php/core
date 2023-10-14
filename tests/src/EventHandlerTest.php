@@ -35,12 +35,12 @@ final class EventHandlerTest extends TestCase
         new EventHandler(stdClass::class);
     }
 
-    public function test_listen(): void
+    public function test_append(): void
     {
         $handler = new EventHandler(EventA::class);
 
         $called = false;
-        $handler->listen(function() use (&$called) { $called = true; });
+        $handler->append(function() use (&$called) { $called = true; });
         $this->assertFalse($called);
         $this->assertTrue($handler->hasListeners());
 
@@ -50,12 +50,43 @@ final class EventHandlerTest extends TestCase
         $this->assertTrue($handler->hasListeners());
     }
 
-    public function test_listen_once(): void
+    public function test_append_once(): void
     {
         $handler = new EventHandler(EventA::class);
 
         $called = false;
-        $handler->listen(function() use (&$called) { $called = true; }, true);
+        $handler->append(function() use (&$called) { $called = true; }, true);
+        $this->assertFalse($called);
+        $this->assertTrue($handler->hasListeners());
+
+        $handler->emit(new EventA());
+
+        $this->assertTrue($called);
+        $this->assertFalse($handler->hasListeners());
+    }
+
+    public function test_prepend(): void
+    {
+        $handler = new EventHandler(EventA::class);
+
+        $list = [];
+        $handler->append(function() use (&$list) { $list[] = 'a'; });
+        $handler->prepend(function() use (&$list) { $list[] = 'b'; });
+        $this->assertSame([], $list);
+        $this->assertTrue($handler->hasListeners());
+
+        $handler->emit(new EventA());
+
+        $this->assertSame(['b', 'a'], $list);
+        $this->assertTrue($handler->hasListeners());
+    }
+
+    public function test_prepend_once(): void
+    {
+        $handler = new EventHandler(EventA::class);
+
+        $called = false;
+        $handler->prepend(function() use (&$called) { $called = true; }, true);
         $this->assertFalse($called);
         $this->assertTrue($handler->hasListeners());
 
@@ -75,8 +106,8 @@ final class EventHandlerTest extends TestCase
             $this->assertSame($event, $e);
         };
 
-        $handler->listen($callback);
-        $handler->listen($callback);
+        $handler->append($callback);
+        $handler->append($callback);
         $count = $handler->emit($event);
 
         $this->assertSame(2, $emitted);
@@ -90,7 +121,7 @@ final class EventHandlerTest extends TestCase
         $handler = new EventHandler(Event::class);
 
         $emitted = 0;
-        $handler->listen(function($e) use ($event, &$emitted) {
+        $handler->append(function($e) use ($event, &$emitted) {
             $emitted++;
             $this->assertSame($event, $e);
         });
@@ -107,7 +138,7 @@ final class EventHandlerTest extends TestCase
         $handler = new EventHandler(Event::class);
 
         $emitted = 0;
-        $handler->listen(function(Event $e) use (&$emitted) {
+        $handler->append(function(Event $e) use (&$emitted) {
             $e->evictCallback();
             $emitted++;
         });
@@ -125,12 +156,12 @@ final class EventHandlerTest extends TestCase
         $handler = new EventHandler(Event::class);
 
         $emitted = 0;
-        $handler->listen(function(Event $e) use (&$emitted) {
+        $handler->append(function(Event $e) use (&$emitted) {
             $e->cancel();
             $this->assertTrue($e->isCanceled());
             $emitted++;
         });
-        $handler->listen(function(Event $e) use (&$emitted) {
+        $handler->append(function(Event $e) use (&$emitted) {
             $emitted++;
         });
 
@@ -159,9 +190,9 @@ final class EventHandlerTest extends TestCase
         $callback1 = fn() => 1;
         $callback2 = fn() => 1;
 
-        $handler->listen($callback1);
-        $handler->listen($callback2);
-        $handler->listen($callback1);
+        $handler->append($callback1);
+        $handler->append($callback2);
+        $handler->append($callback1);
 
         $this->assertTrue($handler->hasListeners());
         $this->assertSame(2, $handler->removeListener($callback1));
@@ -172,8 +203,8 @@ final class EventHandlerTest extends TestCase
     public function test_removeAllListeners(): void
     {
         $handler = new EventHandler(Event::class);
-        $handler->listen(fn() => 1);
-        $handler->listen(fn() => 1);
+        $handler->append(fn() => 1);
+        $handler->append(fn() => 1);
 
         $this->assertTrue($handler->hasListeners());
         $this->assertSame(2, $handler->removeAllListeners());
@@ -185,7 +216,7 @@ final class EventHandlerTest extends TestCase
         $handler = new EventHandler();
         $this->assertSame(Event::class, $handler->class);
         $this->assertFalse($handler->hasListeners());
-        $handler->listen(fn() => 1);
+        $handler->append(fn() => 1);
         $this->assertTrue($handler->hasListeners());
     }
 
@@ -195,7 +226,7 @@ final class EventHandlerTest extends TestCase
         $this->assertSame(Event::class, $handler->class);
         $this->assertTrue($handler->hasNoListeners());
 
-        $handler->listen(fn() => 1);
+        $handler->append(fn() => 1);
         $this->assertFalse($handler->hasNoListeners());
     }
 }
