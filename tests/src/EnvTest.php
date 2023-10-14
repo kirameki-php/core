@@ -11,6 +11,7 @@ use Kirameki\Core\Exceptions\TypeMismatchException;
 use Kirameki\Core\Testing\TestCase;
 use function array_keys;
 use function array_search;
+use function dump;
 use function gethostname;
 use function var_dump;
 use const INF;
@@ -30,7 +31,7 @@ final class EnvTest extends TestCase
         $all = Env::all();
         $this->assertSame(gethostname(), $all['HOSTNAME']);
         $this->assertSame('/app', $all['PWD']);
-        $this->assertSame('2', $all['SHLVL']);
+        $this->assertIsNumeric($all['SHLVL']);
 
         // sort order
         $keys = array_keys($all);

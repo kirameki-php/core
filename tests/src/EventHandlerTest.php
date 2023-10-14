@@ -37,10 +37,32 @@ final class EventHandlerTest extends TestCase
 
     public function test_listen(): void
     {
-        $handler = new EventHandler(Event::class);
+        $handler = new EventHandler(EventA::class);
 
-        $handler->listen(fn() => 1);
+        $called = false;
+        $handler->listen(function() use (&$called) { $called = true; });
+        $this->assertFalse($called);
         $this->assertTrue($handler->hasListeners());
+
+        $handler->emit(new EventA());
+
+        $this->assertTrue($called);
+        $this->assertTrue($handler->hasListeners());
+    }
+
+    public function test_listen_once(): void
+    {
+        $handler = new EventHandler(EventA::class);
+
+        $called = false;
+        $handler->listen(function() use (&$called) { $called = true; }, true);
+        $this->assertFalse($called);
+        $this->assertTrue($handler->hasListeners());
+
+        $handler->emit(new EventA());
+
+        $this->assertTrue($called);
+        $this->assertFalse($handler->hasListeners());
     }
 
     public function test_emit(): void

@@ -15,7 +15,7 @@ class EventHandler
 {
     /**
      * @param class-string<TEvent> $class
-     * @param list<Closure(TEvent): mixed> $listeners
+     * @param list<EventCallback<TEvent>> $listeners
      */
     public function __construct(
         public string $class = Event::class,
@@ -29,11 +29,12 @@ class EventHandler
 
     /**
      * @param Closure(TEvent): mixed $callback
+     * @param bool $once
      * @return void
      */
-    public function listen(Closure $callback): void
+    public function listen(Closure $callback, bool $once = false): void
     {
-        $this->listeners[] = $callback;
+        $this->listeners[] = new EventCallback($callback, $once);
     }
 
     /**
@@ -46,7 +47,7 @@ class EventHandler
     {
         $count = 0;
         foreach ($this->listeners as $index => $listener) {
-            if ($listener === $callback) {
+            if ($listener->callback === $callback) {
                 unset($this->listeners[$index]);
                 $count++;
             }
@@ -104,7 +105,7 @@ class EventHandler
         foreach ($this->listeners as $index => $listener) {
             $listener($event);
             $callCount++;
-            if ($event->willEvictCallback()) {
+            if ($listener->once || $event->willEvictCallback()) {
                 $evicting[] = $index;
             }
             $canceled = $event->isCanceled();
