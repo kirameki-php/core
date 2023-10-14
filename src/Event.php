@@ -56,7 +56,7 @@ abstract class Event
      * Resets all changes after passing it to each callback.
      *
      * @internal
-     * This is called by the EventHandler after each emit.
+     * This is called by the EventHandler after each dispatch.
      * Do not call from user land.
      *
      * @return void

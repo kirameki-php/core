@@ -35,124 +35,123 @@ final class EventHandlerTest extends TestCase
         new EventHandler(stdClass::class);
     }
 
-    public function test_on(): void
+    public function test_listen(): void
     {
         $handler = new EventHandler(Event::class);
 
-        $handler->on(fn() => 1);
+        $handler->listen(fn() => 1);
         $this->assertTrue($handler->hasListeners());
     }
 
-    public function test_emit(): void
+    public function test_dispatch(): void
     {
         $event = new class extends Event {};
         $handler = new EventHandler($event::class);
-
-        $emitted = 0;
-        $callback = function($e) use ($event, &$emitted) {
-            $emitted++;
+        $callback = function($e) use ($event, &$dispatched) {
+            $dispatched++;
             $this->assertSame($event, $e);
         };
 
-        $handler->on($callback);
-        $handler->on($callback);
-        $count = $handler->emit($event);
+        $dispatched = 0;
+        $handler->listen($callback);
+        $handler->listen($callback);
+        $count = $handler->dispatch($event);
 
-        $this->assertSame(2, $emitted);
+        $this->assertSame(2, $dispatched);
         $this->assertSame(2, $count);
         $this->assertTrue($handler->hasListeners());
     }
 
-    public function test_emit_child_class(): void
+    public function test_dispatch_child_class(): void
     {
         $event = new class extends Event {};
         $handler = new EventHandler(Event::class);
 
         $dispatched = 0;
-        $handler->on(function($e) use ($event, &$dispatched) {
+        $handler->listen(function($e) use ($event, &$dispatched) {
             $dispatched++;
             $this->assertSame($event, $e);
         });
-        $count = $handler->emit($event);
+        $count = $handler->dispatch($event);
 
         $this->assertSame(1, $dispatched);
         $this->assertSame(1, $count);
         $this->assertTrue($handler->hasListeners());
     }
 
-    public function test_emit_and_evict(): void
+    public function test_dispatch_and_evict(): void
     {
         $event = new class extends Event {};
         $handler = new EventHandler(Event::class);
 
         $dispatched = 0;
-        $handler->on(function(Event $e) use (&$dispatched) {
+        $handler->listen(function(Event $e) use (&$dispatched) {
             $e->evictCallback();
             $dispatched++;
         });
 
         $this->assertTrue($handler->hasListeners());
-        $this->assertSame(1, $handler->emit($event));
-        $this->assertSame(0, $handler->emit($event));
+        $this->assertSame(1, $handler->dispatch($event));
+        $this->assertSame(0, $handler->dispatch($event));
         $this->assertFalse($handler->hasListeners());
         $this->assertSame(1, $dispatched);
     }
 
-    public function test_emit_and_cancel(): void
+    public function test_dispatch_and_cancel(): void
     {
         $event = new class extends Event {};
         $handler = new EventHandler(Event::class);
 
         $dispatched = 0;
-        $handler->on(function(Event $e) use (&$dispatched) {
+        $handler->listen(function(Event $e) use (&$dispatched) {
             $e->cancel();
             $this->assertTrue($e->isCanceled());
             $dispatched++;
         });
-        $handler->on(function(Event $e) use (&$dispatched) {
+        $handler->listen(function(Event $e) use (&$dispatched) {
             $dispatched++;
         });
 
-        $this->assertSame(1, $handler->emit($event, $canceled));
+        $this->assertSame(1, $handler->dispatch($event, $canceled));
         $this->assertFalse($event->isCanceled());
         $this->assertSame(1, $dispatched);
         $this->assertTrue($canceled);
-        $this->assertSame(1, $handler->emit($event));
+        $this->assertSame(1, $handler->dispatch($event));
         $this->assertSame(2, $dispatched);
         $this->assertTrue($handler->hasListeners());
     }
 
-    public function test_emit_invalid_class(): void
+    public function test_dispatch_invalid_class(): void
     {
         $this->expectExceptionMessage('Expected event to be instance of ' . EventA::class . ', got ' . EventB::class);
         $this->expectException(InvalidTypeException::class);
         $event1 = new EventA();
         $event2 = new EventB();
         $handler = new EventHandler($event1::class);
-        $handler->emit($event2);
+        $handler->dispatch($event2);
     }
 
-    public function test_off(): void
+    public function test_removeListener(): void
     {
         $handler = new EventHandler(Event::class);
         $callback1 = fn() => 1;
         $callback2 = fn() => 1;
 
-        $handler->on($callback1);
-        $handler->on($callback2);
-        $handler->on($callback1);
+        $handler->listen($callback1);
+        $handler->listen($callback2);
+        $handler->listen($callback1);
 
         $this->assertTrue($handler->hasListeners());
-        $this->assertSame(2, $handler->off($callback1));
-        $this->assertSame(1, $handler->off($callback2));
+        $this->assertSame(2, $handler->removeListener($callback1));
+        $this->assertSame(1, $handler->removeListener($callback2));
         $this->assertFalse($handler->hasListeners());
     }
 
     public function test_removeAllListeners(): void
     {
         $handler = new EventHandler(Event::class);
-        $handler->on(fn() => 1);
-        $handler->on(fn() => 1);
+        $handler->listen(fn() => 1);
+        $handler->listen(fn() => 1);
 
         $this->assertTrue($handler->hasListeners());
         $this->assertSame(2, $handler->removeAllListeners());
@@ -164,7 +163,7 @@ final class EventHandlerTest extends TestCase
         $handler = new EventHandler();
         $this->assertSame(Event::class, $handler->class);
         $this->assertFalse($handler->hasListeners());
-        $handler->on(fn() => 1);
+        $handler->listen(fn() => 1);
         $this->assertTrue($handler->hasListeners());
     }
 
@@ -174,7 +173,7 @@ final class EventHandlerTest extends TestCase
         $this->assertSame(Event::class, $handler->class);
         $this->assertTrue($handler->hasNoListeners());
 
-        $handler->on(fn() => 1);
+        $handler->listen(fn() => 1);
         $this->assertFalse($handler->hasNoListeners());
     }
 }

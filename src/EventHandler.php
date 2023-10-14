@@ -31,7 +31,7 @@ class EventHandler
      * @param Closure(TEvent): mixed $callback
      * @return void
      */
-    public function on(Closure $callback): void
+    public function listen(Closure $callback): void
     {
         $this->listeners[] = $callback;
     }
@@ -42,7 +42,7 @@ class EventHandler
      * @param Closure(TEvent): mixed $callback
      * @return int<0, max>
      */
-    public function off(Closure $callback): int
+    public function removeListener(Closure $callback): int
     {
         $count = 0;
         foreach ($this->listeners as $index => $listener) {
@@ -87,13 +87,13 @@ class EventHandler
 
     /**
      * @param TEvent $event
-     * Event to be emitted.
+     * Event to be dispatched.
      * @param bool|null $wasCanceled
      * Flag to be set to true if the event propagation was stopped.
      * @return int<0, max>
      * The number of listeners that were called.
      */
-    public function emit(Event $event, ?bool &$wasCanceled = false): int
+    public function dispatch(Event $event, ?bool &$wasCanceled = false): int
     {
         if (!is_a($event, $this->class)) {
             throw new InvalidTypeException("Expected event to be instance of {$this->class}, got " . $event::class);
