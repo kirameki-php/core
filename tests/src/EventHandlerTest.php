@@ -43,92 +43,92 @@ final class EventHandlerTest extends TestCase
         $this->assertTrue($handler->hasListeners());
     }
 
-    public function test_dispatch(): void
+    public function test_emit(): void
     {
         $event = new class extends Event {};
         $handler = new EventHandler($event::class);
-        $callback = function($e) use ($event, &$dispatched) {
-            $dispatched++;
+        $emitted = 0;
+        $callback = function($e) use ($event, &$emitted) {
+            $emitted++;
             $this->assertSame($event, $e);
         };
 
-        $dispatched = 0;
         $handler->listen($callback);
         $handler->listen($callback);
-        $count = $handler->dispatch($event);
+        $count = $handler->emit($event);
 
-        $this->assertSame(2, $dispatched);
+        $this->assertSame(2, $emitted);
         $this->assertSame(2, $count);
         $this->assertTrue($handler->hasListeners());
     }
 
-    public function test_dispatch_child_class(): void
+    public function test_emit_child_class(): void
     {
         $event = new class extends Event {};
         $handler = new EventHandler(Event::class);
 
-        $dispatched = 0;
-        $handler->listen(function($e) use ($event, &$dispatched) {
-            $dispatched++;
+        $emitted = 0;
+        $handler->listen(function($e) use ($event, &$emitted) {
+            $emitted++;
             $this->assertSame($event, $e);
         });
-        $count = $handler->dispatch($event);
+        $count = $handler->emit($event);
 
-        $this->assertSame(1, $dispatched);
+        $this->assertSame(1, $emitted);
         $this->assertSame(1, $count);
         $this->assertTrue($handler->hasListeners());
     }
 
-    public function test_dispatch_and_evict(): void
+    public function test_emit_and_evict(): void
     {
         $event = new class extends Event {};
         $handler = new EventHandler(Event::class);
 
-        $dispatched = 0;
-        $handler->listen(function(Event $e) use (&$dispatched) {
+        $emitted = 0;
+        $handler->listen(function(Event $e) use (&$emitted) {
             $e->evictCallback();
-            $dispatched++;
+            $emitted++;
         });
 
         $this->assertTrue($handler->hasListeners());
-        $this->assertSame(1, $handler->dispatch($event));
-        $this->assertSame(0, $handler->dispatch($event));
+        $this->assertSame(1, $handler->emit($event));
+        $this->assertSame(0, $handler->emit($event));
         $this->assertFalse($handler->hasListeners());
-        $this->assertSame(1, $dispatched);
+        $this->assertSame(1, $emitted);
     }
 
-    public function test_dispatch_and_cancel(): void
+    public function test_emit_and_cancel(): void
     {
         $event = new class extends Event {};
         $handler = new EventHandler(Event::class);
 
-        $dispatched = 0;
-        $handler->listen(function(Event $e) use (&$dispatched) {
+        $emitted = 0;
+        $handler->listen(function(Event $e) use (&$emitted) {
             $e->cancel();
             $this->assertTrue($e->isCanceled());
-            $dispatched++;
+            $emitted++;
         });
-        $handler->listen(function(Event $e) use (&$dispatched) {
-            $dispatched++;
+        $handler->listen(function(Event $e) use (&$emitted) {
+            $emitted++;
         });
 
-        $this->assertSame(1, $handler->dispatch($event, $canceled));
+        $this->assertSame(1, $handler->emit($event, $canceled));
         $this->assertFalse($event->isCanceled());
-        $this->assertSame(1, $dispatched);
+        $this->assertSame(1, $emitted);
         $this->assertTrue($canceled);
-        $this->assertSame(1, $handler->dispatch($event));
-        $this->assertSame(2, $dispatched);
+        $this->assertSame(1, $handler->emit($event));
+        $this->assertSame(2, $emitted);
         $this->assertTrue($handler->hasListeners());
     }
 
-    public function test_dispatch_invalid_class(): void
+    public function test_emit_invalid_class(): void
     {
         $this->expectExceptionMessage('Expected event to be instance of ' . EventA::class . ', got ' . EventB::class);
         $this->expectException(InvalidTypeException::class);
         $event1 = new EventA();
         $event2 = new EventB();
         $handler = new EventHandler($event1::class);
-        $handler->dispatch($event2);
+        $handler->emit($event2);
     }
 
     public function test_removeListener(): void

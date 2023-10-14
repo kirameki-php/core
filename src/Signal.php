@@ -171,9 +171,9 @@ final class Signal extends StaticClass
 
         $event = self::createSignalEvent($signal, $sigInfo);
 
-        self::$callbacks[$signal]->dispatch($event);
+        self::$callbacks[$signal]->emit($event);
 
-        // Must check that signal exists again because the dispatched callbacks may have removed it
+        // Must check that signal exists again because the emitted callbacks may have removed it
         // by calling Signal::clearHandler().
         if (isset(self::$callbacks[$signal]) && self::$callbacks[$signal]->hasNoListeners()) {
             unset(self::$callbacks[$signal]);
