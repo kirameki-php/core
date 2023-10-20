@@ -4,10 +4,3 @@ parameters:
         - src/
     excludePaths:
         - tests/*
-    ignoreErrors:
-        - message: "#^Template type TEvent is declared as covariant, but occurs in contravariant position in parameter event of method Kirameki\\\\Core\\\\EventHandler\\:\\:emit\\(\\)\\.$#"
-          count: 1
-          path: src/EventHandler.php
-        - message: "#^Offset int on array\\<int, Kirameki\\\\Core\\\\EventHandler\\<Kirameki\\\\Core\\\\SignalEvent\\>\\> in isset\\(\\) always exists and is not nullable\\.$#"
-          count: 1
-          path: src/Signal.php
