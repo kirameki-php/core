@@ -134,7 +134,7 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
      * @param float|null $seconds
      * @return static
      */
-    public function change(
+    public function set(
         ?int $years = null,
         ?int $months = null,
         ?int $days = null,
@@ -221,8 +221,8 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
             return $added;
         }
 
-        $fix = $added->change(days: 1)->subtractMonths(1);
-        return $fix->change(days: $fix->getDaysInMonth());
+        $fix = $added->set(days: 1)->subtractMonths(1);
+        return $fix->set(days: $fix->getDaysInMonth());
     }
 
     /**
@@ -320,7 +320,7 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
      */
     public function toStartOfYear(): static
     {
-        return $this->change(months: 1, days: 1, hours: 0, minutes: 0, seconds: 0);
+        return $this->set(months: 1, days: 1, hours: 0, minutes: 0, seconds: 0);
     }
 
     /**
@@ -328,7 +328,7 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
      */
     public function toEndOfYear(): static
     {
-        return $this->change(months: 12, days: $this->getDaysInMonth(), hours: 23, minutes: 59, seconds: 59.999999);
+        return $this->set(months: 12, days: $this->getDaysInMonth(), hours: 23, minutes: 59, seconds: 59.999999);
     }
 
     /**
@@ -336,7 +336,7 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
      */
     public function toStartOfMonth(): static
     {
-        return $this->change(days: 1, hours: 0, minutes: 0, seconds: 0);
+        return $this->set(days: 1, hours: 0, minutes: 0, seconds: 0);
     }
 
     /**
@@ -344,7 +344,7 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
      */
     public function toEndOfMonth(): static
     {
-        return $this->change(days: $this->getDaysInMonth(), hours: 23, minutes: 59, seconds: 59.999999);
+        return $this->set(days: $this->getDaysInMonth(), hours: 23, minutes: 59, seconds: 59.999999);
     }
 
     /**
