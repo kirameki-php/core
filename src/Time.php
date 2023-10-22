@@ -8,8 +8,12 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use JsonSerializable;
+use Kirameki\Core\Exceptions\InvalidArgumentException;
 use RuntimeException;
 use Stringable;
+use function count;
+use function date;
+use function implode;
 
 class Time extends DateTimeImmutable implements JsonSerializable, Stringable
 {
@@ -35,18 +39,7 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
     # region Creation --------------------------------------------------------------------------------------------------
 
     /**
-     * @return static
-     */
-    public function copy(): static
-    {
-        return clone $this;
-    }
-
-    /**
-     * @param string $format
-     * @param string $datetime
-     * @param DateTimeZone|null $timezone
-     * @return static
+     * @inheritDoc
      */
     public static function createFromFormat(string $format, string $datetime, ?DateTimeZone $timezone = null): static
     {
@@ -72,8 +65,7 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
     }
 
     /**
-     * @param DateTime $object
-     * @return static
+     * @inheritDoc
      */
     public static function createFromMutable(DateTime $object): static
     {
@@ -81,8 +73,7 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
     }
 
     /**
-     * @param DateTimeInterface $object
-     * @return static
+     * @inheritDoc
      */
     public static function createFromInterface(DateTimeInterface $object): static
     {
@@ -96,6 +87,38 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
     public static function createFromTimestamp(int|float $timestamp): static
     {
         return static::createFromFormat('U.u', number_format($timestamp, 6, '.', ''));
+    }
+
+    /**
+     * @return static
+     */
+    public static function now(): static
+    {
+        return new static();
+    }
+
+    /**
+     * @return static
+     */
+    public static function today(): static
+    {
+        return new static('today');
+    }
+
+    /**
+     * @return static
+     */
+    public static function yesterday(): static
+    {
+        return new static('yesterday');
+    }
+
+    /**
+     * @return static
+     */
+    public static function tomorrow(): static
+    {
+        return new static('tomorrow');
     }
 
     # endregion Creation -----------------------------------------------------------------------------------------------
@@ -141,22 +164,220 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
      * @param float|null $seconds
      * @return static
      */
-    public function turn(
+    public function shift(
         ?int $years = null,
         ?int $months = null,
         ?int $days = null,
         ?int $hours = null,
         ?int $minutes = null,
-        ?float $seconds = null
+        int|float|null $seconds = null
     ): static
     {
-        $modify = ($years !== null) ? "+{$years}year" : '';
-        $modify.= ($months !== null) ? "+{$months}month" : '';
-        $modify.= ($days !== null) ? "+{$days}day" : '';
-        $modify.= ($hours !== null) ? "+{$hours}hour" : '';
-        $modify.= ($minutes !== null) ? "+{$minutes}minute" : '';
-        $modify.= ($seconds !== null) ? "+{$seconds}seconds" : '';
-        return $this->modify($modify);
+        $mods = [];
+        if ($years !== null) {
+            $mods[]= ($years >= 0 ? '+' : '') . "{$years} year";
+        }
+        if ($months !== null) {
+            $mods[]= ($months >= 0 ? '+' : '') . "{$months} month";
+        }
+        if ($days !== null) {
+            $mods[]= ($days >= 0 ? '+' : '') . "{$days} day";
+        }
+        if ($hours !== null) {
+            $mods[]= ($hours >= 0 ? '+' : '') . "{$hours} hour";
+        }
+        if ($minutes !== null) {
+            $mods[]= ($minutes >= 0 ? '+' : '') . "{$minutes} minute";
+        }
+        if ($seconds !== null) {
+            $mods[]= ($seconds >= 0 ? '+' : '') . "{$seconds} second";
+        }
+        return $this->modify(implode(' ', $mods));
+    }
+
+    /**
+     * @param int $years
+     * @return static
+     */
+    public function addYears(int $years): static
+    {
+        return $this->shift(years: $years);
+    }
+
+    /**
+     * @param int $months
+     * @return static
+     */
+    public function addMonths(int $months): static
+    {
+        return $this->shift(months: $months);
+    }
+
+    public function addCalendarMonths(int $months): static
+    {
+        $added = $this->addMonths($months);
+
+        if ($added->getDay() === $this->getDay()) {
+            return $added;
+        }
+
+        $fix = $added->change(days: 1)->subtractMonths(1);
+        return $fix->change(days: $fix->getDaysInMonth());
+    }
+
+    /**
+     * @param int $days
+     * @return static
+     */
+    public function addDays(int $days): static
+    {
+        return $this->shift(days: $days);
+    }
+
+    /**
+     * @param int $hours
+     * @return static
+     */
+    public function addHours(int $hours): static
+    {
+        return $this->shift(hours: $hours);
+    }
+
+    /**
+     * @param int $minutes
+     * @return static
+     */
+    public function addMinutes(int $minutes): static
+    {
+        return $this->shift(minutes: $minutes);
+    }
+
+    /**
+     * @param int|float $seconds
+     * @return static
+     */
+    public function addSeconds(int|float $seconds): static
+    {
+        return $this->shift(seconds: $seconds);
+    }
+
+    /**
+     * @param int $years
+     * @return static
+     */
+    public function subtractYears(int $years): static
+    {
+        return $this->shift(years: -$years);
+    }
+
+    /**
+     * @param int $months
+     * @return static
+     */
+    public function subtractMonths(int $months): static
+    {
+        return $this->shift(months: -$months);
+    }
+
+    /**
+     * @param int $days
+     * @return static
+     */
+    public function subtractDays(int $days): static
+    {
+        return $this->shift(days: -$days);
+    }
+
+    /**
+     * @param int $hours
+     * @return static
+     */
+    public function subtractHours(int $hours): static
+    {
+        return $this->shift(hours: -$hours);
+    }
+
+    /**
+     * @param int $minutes
+     * @return static
+     */
+    public function subtractMinutes(int $minutes): static
+    {
+        return $this->shift(minutes: -$minutes);
+    }
+
+    /**
+     * @param int|float $seconds
+     * @return static
+     */
+    public function subtractSeconds(int|float $seconds): static
+    {
+        return $this->shift(seconds: -$seconds);
+    }
+
+    /**
+     * @return static
+     */
+    public function toStartOfYear(): static
+    {
+        return $this->change(months: 1, days: 1, hours: 0, minutes: 0, seconds: 0);
+    }
+
+    /**
+     * @return static
+     */
+    public function toEndOfYear(): static
+    {
+        return $this->change(months: 12, days: $this->getDaysInMonth(), hours: 23, minutes: 59, seconds: 59.999999);
+    }
+
+    /**
+     * @return static
+     */
+    public function toStartOfMonth(): static
+    {
+        return $this->change(days: 1, hours: 0, minutes: 0, seconds: 0);
+    }
+
+    /**
+     * @return static
+     */
+    public function toEndOfMonth(): static
+    {
+        return $this->change(days: $this->getDaysInMonth(), hours: 23, minutes: 59, seconds: 59.999999);
+    }
+
+    /**
+     * @return static
+     */
+    public function toStartOfDay(): static
+    {
+        return $this->setTime(0, 0);
+    }
+
+    /**
+     * @return static
+     */
+    public function toEndOfDay(): static
+    {
+        return $this->setTime(23, 59, 59, 999999);
+    }
+
+    /**
+     * @param string $zone
+     * @return static
+     */
+    public function toTimeZone(string $zone): static
+    {
+        return $this->setTimezone(new DateTimeZone($zone));
+    }
+
+    /**
+     * @return static
+     */
+    public function toUtc(): static
+    {
+        return $this->toTimeZone('UTC');
     }
 
     /**
@@ -174,7 +395,7 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
             return static::createFromInterface($upper);
         }
 
-        return $this->copy();
+        return clone $this;
     }
 
     # endregion Mutation -----------------------------------------------------------------------------------------------
@@ -191,24 +412,58 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
         return $min <= $this && $this <= $max;
     }
 
+    /**
+     * @param DateTimeInterface|null $context
+     * @return bool
+     */
+    public function isPast(?DateTimeInterface $context = null): bool
+    {
+        return $this < ($context ?? static::now());
+    }
+
+    /**
+     * @param DateTimeInterface|null $context
+     * @return bool
+     */
+    public function isFuture(?DateTimeInterface $context = null): bool
+    {
+        return $this > ($context ?? static::now());
+    }
+
     # endregion Comparison ---------------------------------------------------------------------------------------------
 
     # region Conversion ------------------------------------------------------------------------------------------------
 
     /**
+     * @return int
+     */
+    public function toInt(): int
+    {
+        return $this->getTimestamp();
+    }
+
+    /**
      * @return float
      */
-    public function getPreciseTimestamp(): float
+    public function toFloat(): float
     {
         return (float) $this->format('U.u');
     }
 
     /**
-     * @return string
+     * @inheritDoc
      */
     public function jsonSerialize(): string
     {
         return $this->toString();
+    }
+
+    /**
+     * @return DateTimeImmutable
+     */
+    public function toBase(): DateTimeImmutable
+    {
+        return DateTimeImmutable::createFromInterface($this);
     }
 
     /**
@@ -228,7 +483,7 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
     }
 
     /**
-     * @return string
+     * @inheritDoc
      */
     public function __toString(): string
     {
@@ -269,98 +524,84 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
 
     # endregion Testing ------------------------------------------------------------------------------------------------
 
-    # region Relative --------------------------------------------------------------------------------------------------
-
-    /**
-     * @return static
-     */
-    public static function now(): static
-    {
-        return new static();
-    }
-
-    /**
-     * @return static
-     */
-    public static function today(): static
-    {
-        return new static('today');
-    }
-
-    /**
-     * @return static
-     */
-    public static function yesterday(): static
-    {
-        return new static('yesterday');
-    }
-
-    /**
-     * @return static
-     */
-    public static function tomorrow(): static
-    {
-        return new static('tomorrow');
-    }
-
-    /**
-     * @return static
-     */
-    public function startOfDay(): static
-    {
-        return $this->setTime(0, 0);
-    }
-
-    /**
-     * @return static
-     */
-    public function endOfDay(): static
-    {
-        return $this->setTime(23, 59, 59, 999999);
-    }
-
-    /**
-     * @param DateTimeInterface|null $context
-     * @return bool
-     */
-    public function isPast(?DateTimeInterface $context = null): bool
-    {
-        return $this < ($context ?? static::now());
-    }
-
-    /**
-     * @param DateTimeInterface|null $context
-     * @return bool
-     */
-    public function isFuture(?DateTimeInterface $context = null): bool
-    {
-        return $this > ($context ?? static::now());
-    }
-
-    # endregion Relative -----------------------------------------------------------------------------------------------
-
     # region Calendar --------------------------------------------------------------------------------------------------
 
     /**
      * @return int
      */
-    public function daysInMonth(): int
+    public function getYear(): int
+    {
+        return (int) $this->format('Y');
+    }
+
+    /**
+     * @return int<1,12>
+     */
+    public function getMonth(): int
+    {
+        return (int) $this->format('n');
+    }
+
+    /**
+     * @return int<1,31>
+     */
+    public function getDay(): int
+    {
+        return (int) $this->format('j');
+    }
+
+    /**
+     * @return int<0,23>
+     */
+    public function getHours(): int
+    {
+        return (int) $this->format('G');
+    }
+
+    /**
+     * @return int<0,59>
+     */
+    public function getMinutes(): int
+    {
+        return (int) $this->format('i');
+    }
+
+    /**
+     * @return float
+     */
+    public function getSeconds(): float
+    {
+        return (float) $this->format('s.u');
+    }
+
+    /**
+     * @return int
+     */
+    public function getDaysInMonth(): int
     {
         return (int) $this->format('t');
     }
 
     /**
-     * @return int
+     * @return DayOfWeek
      */
-    public function dayOfWeekNumber(): int
+    public function getDayOfWeek(): DayOfWeek
     {
-        return (int) $this->format('N');
+        return match ((int) $this->format('N')) {
+            1 => DayOfWeek::Monday,
+            2 => DayOfWeek::Tuesday,
+            3 => DayOfWeek::Wednesday,
+            4 => DayOfWeek::Thursday,
+            5 => DayOfWeek::Friday,
+            6 => DayOfWeek::Saturday,
+            7 => DayOfWeek::Sunday,
+        };
     }
 
     /**
      * @return int
      */
-    public function dayOfYear(): int
+    public function getDayOfYear(): int
     {
         return (int) $this->format('z');
     }
@@ -370,7 +611,7 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
      */
     public function isMonday(): bool
     {
-        return $this->dayOfWeekNumber() === 1;
+        return $this->getDayOfWeek() === DayOfWeek::Monday;
     }
 
     /**
@@ -378,7 +619,7 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
      */
     public function isTuesday(): bool
     {
-        return $this->dayOfWeekNumber() === 2;
+        return $this->getDayOfWeek() === DayOfWeek::Tuesday;
     }
 
     /**
@@ -386,7 +627,7 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
      */
     public function isWednesday(): bool
     {
-        return $this->dayOfWeekNumber() === 3;
+        return $this->getDayOfWeek() === DayOfWeek::Wednesday;
     }
 
     /**
@@ -394,7 +635,7 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
      */
     public function isThursday(): bool
     {
-        return $this->dayOfWeekNumber() === 4;
+        return $this->getDayOfWeek() === DayOfWeek::Thursday;
     }
 
     /**
@@ -402,7 +643,7 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
      */
     public function isFriday(): bool
     {
-        return $this->dayOfWeekNumber() === 5;
+        return $this->getDayOfWeek() === DayOfWeek::Friday;
     }
 
     /**
@@ -410,7 +651,7 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
      */
     public function isSaturday(): bool
     {
-        return $this->dayOfWeekNumber() === 6;
+        return $this->getDayOfWeek() === DayOfWeek::Saturday;
     }
 
     /**
@@ -418,7 +659,7 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
      */
     public function isSunday(): bool
     {
-        return $this->dayOfWeekNumber() === 7;
+        return $this->getDayOfWeek() === DayOfWeek::Sunday;
     }
 
     /**
@@ -434,7 +675,7 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
      */
     public function isWeekend(): bool
     {
-        return in_array($this->dayOfWeekNumber(), [6, 7]);
+        return in_array($this->getDayOfWeek(), [DayOfWeek::Saturday, DayOfWeek::Sunday], true);
     }
 
     /**
@@ -450,14 +691,6 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
     # region Zone ------------------------------------------------------------------------------------------------------
 
     /**
-     * @return static
-     */
-    public function utc(): static
-    {
-        return $this->setTimezone(new DateTimeZone('UTC'));
-    }
-
-    /**
      * @return bool
      */
     public function isUtc(): bool
@@ -471,14 +704,6 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
     public function isDst(): bool
     {
         return (bool) $this->format('I');
-    }
-
-    /**
-     * @return bool
-     */
-    public function isSummerTime(): bool
-    {
-        return $this->isDst();
     }
 
     # endregion Zone ---------------------------------------------------------------------------------------------------
