@@ -5,8 +5,7 @@
   "license": "MIT",
   "require": {
     "php": ">= 8.2",
-    "ext-intl": "*",
-    "ext-pcntl": "*"
+    "ext-intl": "*"
   },
   "require-dev": {
     "ext-posix": "*",
