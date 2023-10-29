@@ -11,9 +11,8 @@ use JsonSerializable;
 use Kirameki\Core\Exceptions\InvalidArgumentException;
 use RuntimeException;
 use Stringable;
-use function count;
-use function date;
 use function implode;
+use function is_float;
 
 class Time extends DateTimeImmutable implements JsonSerializable, Stringable
 {
@@ -53,7 +52,7 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
             $base = $base->setTimezone($timezone);
         }
 
-        // NOTE: Invalid dates (ex: Feb 30th) can slip through so we handle that here
+        // NOTE: Invalid dates (ex: Feb 30th) can slip through, so we handle that here
         // https://www.php.net/manual/en/datetime.getlasterrors.php#102686
         $errors = DateTime::getLastErrors();
         if ($errors !== false && $errors['error_count'] + $errors['warning_count'] === 0) {
@@ -206,23 +205,23 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
 
     /**
      * @param int $months
+     * @param bool $overflow
      * @return static
      */
-    public function addMonths(int $months): static
+    public function addMonths(int $months, bool $overflow = true): static
     {
-        return $this->shift(months: $months);
-    }
+        $added = $this->shift(months: $months);
 
-    public function addCalendarMonths(int $months): static
-    {
-        $added = $this->addMonths($months);
+        if ($overflow) {
+            if ($added->getDay() === $this->getDay()) {
+                return $added;
+            }
 
-        if ($added->getDay() === $this->getDay()) {
-            return $added;
+            $fix = $added->set(days: 1)->subtractMonths(1);
+            return $fix->set(days: $fix->getDaysInMonth());
         }
 
-        $fix = $added->set(days: 1)->subtractMonths(1);
-        return $fix->set(days: $fix->getDaysInMonth());
+        return $added;
     }
 
     /**
@@ -315,6 +314,68 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
         return $this->shift(seconds: -$seconds);
     }
 
+    public function addUnit(TimeUnit $unit, int|float $value): static
+    {
+        if (is_float($value)) {
+            return match ($unit) {
+                TimeUnit::Second => $this->addSeconds($value),
+                default => throw new InvalidArgumentException('Only seconds can be a float.', [
+                    'unit' => $unit,
+                    'value' => $value,
+                ]),
+            };
+        }
+
+        return match ($unit) {
+            TimeUnit::Year => $this->addYears($value),
+            TimeUnit::Month => $this->addMonths($value),
+            TimeUnit::Day => $this->addDays($value),
+            TimeUnit::Hour => $this->addHours($value),
+            TimeUnit::Minute => $this->addMinutes($value),
+            TimeUnit::Second => $this->addSeconds($value),
+        };
+    }
+
+    public function addUnitWithClamping(TimeUnit $unit, int|float $value, TimeUnit $clamp): static
+    {
+        $original = clone $this;
+
+        $added = $this->addUnit($unit, $value);
+        $start = $original->toStartOfUnit($clamp);
+        $end = $original->toEndOfUnit($clamp);
+
+        if ($added < $start) {
+            return $start;
+        } elseif ($added > $end) {
+            return $end;
+        }
+        return $added;
+    }
+
+    public function toStartOfUnit(TimeUnit $unit): static
+    {
+        return match ($unit) {
+            TimeUnit::Year => $this->toStartOfYear(),
+            TimeUnit::Month => $this->toStartOfMonth(),
+            TimeUnit::Day => $this->toStartOfDay(),
+            TimeUnit::Hour => $this->toStartOfHour(),
+            TimeUnit::Minute => $this->set(seconds: 0),
+            TimeUnit::Second => $this->set(seconds: (int) $this->getSeconds()),
+        };
+    }
+
+    public function toEndOfUnit(TimeUnit $unit): static
+    {
+        return match ($unit) {
+            TimeUnit::Year => $this->toEndOfYear(),
+            TimeUnit::Month => $this->toEndOfMonth(),
+            TimeUnit::Day => $this->toEndOfDay(),
+            TimeUnit::Hour => $this->toEndOfHour(),
+            TimeUnit::Minute => $this->set(seconds: 59.999999),
+            TimeUnit::Second => $this->set(seconds: ((int) $this->getSeconds()) + 0.999999),
+        };
+    }
+
     /**
      * @return static
      */
@@ -361,6 +422,22 @@ class Time extends DateTimeImmutable implements JsonSerializable, Stringable
     public function toEndOfDay(): static
     {
         return $this->setTime(23, 59, 59, 999999);
+    }
+
+    /**
+     * @return static
+     */
+    public function toStartOfHour(): static
+    {
+        return $this->set(minutes: 0, seconds: 0);
+    }
+
+    /**
+     * @return static
+     */
+    public function toEndOfHour(): static
+    {
+        return $this->set(minutes: 59, seconds: 59.999999);
     }
 
     /**
