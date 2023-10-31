@@ -6,7 +6,6 @@ use Kirameki\Core\Exceptions\NotSupportedException;
 use ResourceBundle;
 use function array_flip;
 use function array_keys;
-use function locale_get_default;
 
 final class Locale extends StaticClass
 {
