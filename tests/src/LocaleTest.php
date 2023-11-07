@@ -5,7 +5,6 @@ namespace Tests\Kirameki\Core;
 use Kirameki\Core\Exceptions\NotSupportedException;
 use Kirameki\Core\Locale;
 use Kirameki\Core\Testing\TestCase;
-use function dump;
 
 final class LocaleTest extends TestCase
 {

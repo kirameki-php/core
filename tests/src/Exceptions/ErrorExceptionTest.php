@@ -6,12 +6,42 @@ use ErrorException as BaseException;
 use JsonSerializable;
 use Kirameki\Core\Exceptions\ErrorException;
 use Kirameki\Core\Exceptions\Exceptionable;
+use PHPUnit\Framework\Attributes\WithoutErrorHandler;
 use function array_keys;
+use function assert;
+use function error_get_last;
+use const E_ALL;
 use const E_ERROR;
 use const E_WARNING;
 
 final class ErrorExceptionTest extends TestCase
 {
+    #[WithoutErrorHandler]
+    public function test_fromErrorGetLast(): void
+    {
+        error_reporting(E_ALL ^ E_WARNING);
+        echo $a;
+        $exception = ErrorException::fromErrorGetLast();
+        $this->assertInstanceOf(ErrorException::class, $exception);
+        $this->assertSame('Undefined variable $a', $exception->getMessage());
+        $this->assertSame(E_WARNING, $exception->getSeverity());
+        $this->assertSame(__FILE__, $exception->getFile());
+        $this->assertSame(__LINE__ - 6, $exception->getLine());
+        $this->assertSame(0, $exception->getCode());
+        $this->assertNull($exception->getContext());
+        $this->assertNull($exception->getPrevious());
+        $this->assertNull(error_get_last());
+
+        echo $a;
+        ErrorException::fromErrorGetLast(clearError: false);
+        $error = error_get_last();
+        $this->assertSame('Undefined variable $a', $error['message'], 'error_get_last() should not be cleared.');
+
+        echo $a;
+        $exception = ErrorException::fromErrorGetLast(['a' => 1]);
+        $this->assertSame(['a' => 1], $exception->getContext());
+    }
+
     public function test_construct(): void
     {
         $exception = new ErrorException('test', E_ERROR, __FILE__, __LINE__);

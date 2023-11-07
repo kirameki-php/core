@@ -5,9 +5,38 @@ namespace Kirameki\Core\Exceptions;
 use ErrorException as BaseException;
 use JsonSerializable;
 
+/**
+ * @consistent-constructor
+ */
 class ErrorException extends BaseException implements Exceptionable, JsonSerializable
 {
     use WithContext;
+
+    /**
+     * @param iterable<string, mixed>|null $context
+     * @param bool $clearError
+     * @return static
+     */
+    public static function fromErrorGetLast(?iterable $context = null, bool $clearError = true): static
+    {
+        $error = error_get_last();
+
+        if ($error === null) {
+            throw new LogicException('No error found from error_get_last().');
+        }
+
+        if ($clearError) {
+            error_clear_last();
+        }
+
+        return new static(
+            $error['message'],
+            $error['type'],
+            $error['file'],
+            $error['line'],
+            $context,
+        );
+    }
 
     /**
      * @param string $message
