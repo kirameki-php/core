@@ -4,6 +4,7 @@ namespace Tests\Kirameki\Core\Testing;
 
 use Kirameki\Core\Exceptions\ErrorException;
 use Kirameki\Core\Testing\TestCase;
+use const E_WARNING;
 
 final class TestCaseTest extends TestCase
 {
@@ -42,6 +43,20 @@ final class TestCaseTest extends TestCase
         $this->throwOnError(E_WARNING);
         $this->expectExceptionMessage('Undefined array key 1');
         $this->expectException(ErrorException::class);
+        $arr = [];
+        $arr[1];
+    }
+
+    public function test_expectErrorMessage(): void
+    {
+        $this->expectErrorMessage('Undefined array key 1', E_WARNING);
+        $arr = [];
+        $arr[1];
+    }
+
+    public function test_expectWarningMessage(): void
+    {
+        $this->expectWarningMessage('Undefined array key 1');
         $arr = [];
         $arr[1];
     }

@@ -5,7 +5,13 @@ namespace Kirameki\Core\Testing;
 use Closure;
 use Kirameki\Core\Exceptions\ErrorException;
 use PHPUnit\Framework\TestCase as BaseTestCase;
-use function var_dump;
+use function restore_error_handler;
+use function set_error_handler;
+use const E_ALL;
+use const E_COMPILE_WARNING;
+use const E_CORE_WARNING;
+use const E_USER_WARNING;
+use const E_WARNING;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -95,5 +101,18 @@ abstract class TestCase extends BaseTestCase
             restore_error_handler();
             throw new ErrorException($message, $severity, $file, $line);
         }, $level);
+        $this->runBeforeTearDown(static fn() => restore_error_handler());
+    }
+
+    public function expectErrorMessage(string $message, int $level = E_ALL): void
+    {
+        $this->throwOnError($level);
+        $this->expectExceptionMessage($message);
+        $this->expectException(ErrorException::class);
+    }
+
+    public function expectWarningMessage(string $message): void
+    {
+        $this->expectErrorMessage($message, E_WARNING | E_CORE_WARNING | E_USER_WARNING | E_COMPILE_WARNING);
     }
 }
