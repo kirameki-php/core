@@ -6,10 +6,12 @@ use ErrorException as BaseException;
 use JsonSerializable;
 use Kirameki\Core\Exceptions\ErrorException;
 use Kirameki\Core\Exceptions\Exceptionable;
+use Kirameki\Core\Exceptions\LogicException;
 use PHPUnit\Framework\Attributes\WithoutErrorHandler;
 use function array_keys;
 use function assert;
 use function error_get_last;
+use function error_reporting;
 use const E_ALL;
 use const E_ERROR;
 use const E_WARNING;
@@ -40,6 +42,13 @@ final class ErrorExceptionTest extends TestCase
         echo $a;
         $exception = ErrorException::fromErrorGetLast(['a' => 1]);
         $this->assertSame(['a' => 1], $exception->getContext());
+    }
+
+    public function test_fromErrorGetLast_on_no_error(): void
+    {
+        $this->expectExceptionMessage('No error found from error_get_last().');
+        $this->expectException(LogicException::class);
+        ErrorException::fromErrorGetLast();
     }
 
     public function test_construct(): void
