@@ -14,17 +14,17 @@ final class InvalidArgumentExceptionTest extends TestCase
     public function test_construct(): void
     {
         $exception = new InvalidArgumentException();
-        self::assertInstanceOf(LogicException::class, $exception);
-        self::assertInstanceOf(Exceptionable::class, $exception);
-        self::assertInstanceOf(JsonSerializable::class, $exception);
-        self::assertNull($exception->getContext());
+        $this->assertInstanceOf(LogicException::class, $exception);
+        $this->assertInstanceOf(Exceptionable::class, $exception);
+        $this->assertInstanceOf(JsonSerializable::class, $exception);
+        $this->assertSame([], $exception->getContext());
     }
 
     public function test_construct_with_context(): void
     {
         $exception = new InvalidArgumentException('t', ['a' => 1, 'b' => 2]);
-        self::assertEquals('t', $exception->getMessage());
-        self::assertEquals(['a' => 1, 'b' => 2], $exception->getContext());
+        $this->assertSame('t', $exception->getMessage());
+        $this->assertSame(['a' => 1, 'b' => 2], $exception->getContext());
     }
 
     public function test_construct_with_full_construct(): void
@@ -34,16 +34,16 @@ final class InvalidArgumentExceptionTest extends TestCase
         $code = random_int(0, 100);
         $prev = new RuntimeException('r');
         $exception = new InvalidArgumentException($message, $context, $code, $prev);
-        self::assertEquals($message, $exception->getMessage());
-        self::assertEquals($code, $exception->getCode());
-        self::assertEquals($context, $exception->getContext());
-        self::assertEquals($prev, $exception->getPrevious());
+        $this->assertSame($message, $exception->getMessage());
+        $this->assertSame($code, $exception->getCode());
+        $this->assertSame($context, $exception->getContext());
+        $this->assertSame($prev, $exception->getPrevious());
     }
 
     public function test_construct_with_null_context(): void
     {
         $exception = new InvalidArgumentException('t', null);
-        self::assertEquals('t', $exception->getMessage());
-        self::assertEquals(null, $exception->getContext());
+        $this->assertSame('t', $exception->getMessage());
+        $this->assertSame([], $exception->getContext());
     }
 }

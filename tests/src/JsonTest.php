@@ -25,41 +25,41 @@ final class JsonTest extends TestCase
 
     public function test_encode(): void
     {
-        self::assertSame('null', Json::encode(null));
-        self::assertSame('1', Json::encode(1));
-        self::assertSame('9223372036854775807', Json::encode(PHP_INT_MAX));
-        self::assertSame('1.0', Json::encode(1.0));
-        self::assertSame('1.0', Json::encode(1.00));
-        self::assertSame('0.3333333333333333', Json::encode(1/3));
-        self::assertSame('true', Json::encode(true));
-        self::assertSame('false', Json::encode(false));
-        self::assertSame('""', Json::encode(''));
-        self::assertSame('"ascii"', Json::encode('ascii'));
-        self::assertSame('"あいう"', Json::encode('あいう'));
-        self::assertSame('"🏴󠁧󠁢󠁳󠁣󠁴󠁿"', Json::encode('🏴󠁧󠁢󠁳󠁣󠁴󠁿'));
-        self::assertSame('"<\\\\>"', Json::encode('<\\>'));
-        self::assertSame('[]', Json::encode([]));
-        self::assertSame('[1,2]', Json::encode([1, 2]));
-        self::assertSame("[\n    1,\n    2\n]", Json::encode([1, 2], formatted: true));
-        self::assertSame('{"1":1}', Json::encode(['1' => 1]));
-        self::assertSame('{}', Json::encode(new stdClass()));
-        self::assertSame('{"b":true,"i":1,"f":1.0}', Json::encode(new SimpleClass()));
-        self::assertSame('{"date":"2021-02-02 00:00:00.000000","timezone_type":3,"timezone":"UTC"}', Json::encode(new DateTime('2021-02-02')));
-        self::assertSame('1', Json::encode(IntEnum::One));
-        self::assertSame('"1"', Json::encode(StringEnum::One));
+        $this->assertSame('null', Json::encode(null));
+        $this->assertSame('1', Json::encode(1));
+        $this->assertSame('9223372036854775807', Json::encode(PHP_INT_MAX));
+        $this->assertSame('1.0', Json::encode(1.0));
+        $this->assertSame('1.0', Json::encode(1.00));
+        $this->assertSame('0.3333333333333333', Json::encode(1/3));
+        $this->assertSame('true', Json::encode(true));
+        $this->assertSame('false', Json::encode(false));
+        $this->assertSame('""', Json::encode(''));
+        $this->assertSame('"ascii"', Json::encode('ascii'));
+        $this->assertSame('"あいう"', Json::encode('あいう'));
+        $this->assertSame('"🏴󠁧󠁢󠁳󠁣󠁴󠁿"', Json::encode('🏴󠁧󠁢󠁳󠁣󠁴󠁿'));
+        $this->assertSame('"<\\\\>"', Json::encode('<\\>'));
+        $this->assertSame('[]', Json::encode([]));
+        $this->assertSame('[1,2]', Json::encode([1, 2]));
+        $this->assertSame("[\n    1,\n    2\n]", Json::encode([1, 2], formatted: true));
+        $this->assertSame('{"1":1}', Json::encode(['1' => 1]));
+        $this->assertSame('{}', Json::encode(new stdClass()));
+        $this->assertSame('{"b":true,"i":1,"f":1.0}', Json::encode(new SimpleClass()));
+        $this->assertSame('{"date":"2021-02-02 00:00:00.000000","timezone_type":3,"timezone":"UTC"}', Json::encode(new DateTime('2021-02-02')));
+        $this->assertSame('1', Json::encode(IntEnum::One));
+        $this->assertSame('"1"', Json::encode(StringEnum::One));
 
         // edge case: -0 (int) will be 0 but -0.0 (float) will convert to `-0.0`
-        self::assertSame('0', Json::encode(-0));
-        self::assertSame('-0.0', Json::encode(-0.0));
+        $this->assertSame('0', Json::encode(-0));
+        $this->assertSame('-0.0', Json::encode(-0.0));
 
         // edge case: list and assoc mixed will result in assoc with string key
-        self::assertSame('{"0":1,"a":2}', Json::encode([1, 'a' => 2]));
+        $this->assertSame('{"0":1,"a":2}', Json::encode([1, 'a' => 2]));
 
         // edge case: null is changed to ""
-        self::assertSame('{"":1}', Json::encode([null => 1]));
+        $this->assertSame('{"":1}', Json::encode([null => 1]));
 
         // edge case: Closure is changed to "{}"
-        self::assertSame('{}', Json::encode(static fn() => 1));
+        $this->assertSame('{}', Json::encode(static fn() => 1));
     }
 
     public function test_encode_invalid_string(): void
@@ -92,8 +92,8 @@ final class JsonTest extends TestCase
 
     public function test_decode(): void
     {
-        self::assertSame(null, Json::decode('null'));
-        self::assertSame(1, Json::decode('1'));
+        $this->assertSame(null, Json::decode('null'));
+        $this->assertSame(1, Json::decode('1'));
         self::assertSame(1.0, Json::decode('1.0'));
         self::assertSame(true, Json::decode('true'));
         self::assertSame(false, Json::decode('false'));

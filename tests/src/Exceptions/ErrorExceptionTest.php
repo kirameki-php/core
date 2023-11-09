@@ -30,7 +30,7 @@ final class ErrorExceptionTest extends TestCase
         $this->assertSame(__FILE__, $exception->getFile());
         $this->assertSame(__LINE__ - 6, $exception->getLine());
         $this->assertSame(0, $exception->getCode());
-        $this->assertNull($exception->getContext());
+        $this->assertSame([], $exception->getContext());
         $this->assertNull($exception->getPrevious());
         $this->assertNull(error_get_last());
 
@@ -54,10 +54,10 @@ final class ErrorExceptionTest extends TestCase
     public function test_construct(): void
     {
         $exception = new ErrorException('test', E_ERROR, __FILE__, __LINE__);
-        self::assertInstanceOf(BaseException::class, $exception);
-        self::assertInstanceOf(Exceptionable::class, $exception);
-        self::assertInstanceOf(JsonSerializable::class, $exception);
-        self::assertNull($exception->getContext());
+        $this->assertInstanceOf(BaseException::class, $exception);
+        $this->assertInstanceOf(Exceptionable::class, $exception);
+        $this->assertInstanceOf(JsonSerializable::class, $exception);
+        $this->assertSame([], $exception->getContext());
     }
 
     public function test_construct_with_context(): void
@@ -65,8 +65,8 @@ final class ErrorExceptionTest extends TestCase
         $context = ['a' => 1, 'b' => 2];
         $exception = new ErrorException('t', E_ERROR, __FILE__, __LINE__);
         $exception->mergeContext($context);
-        self::assertEquals('t', $exception->getMessage());
-        self::assertEquals($context, $exception->getContext());
+        $this->assertSame('t', $exception->getMessage());
+        $this->assertSame($context, $exception->getContext());
     }
 
     public function test_construct_with_full_construct(): void
@@ -78,13 +78,13 @@ final class ErrorExceptionTest extends TestCase
         $context = ['a' => 1];
         $exception = new ErrorException($message, $severity, $file, $line);
         $exception->setContext($context);
-        self::assertEquals($message, $exception->getMessage());
-        self::assertEquals(0, $exception->getCode());
-        self::assertEquals($severity, $exception->getSeverity());
-        self::assertEquals($file, $exception->getFile());
-        self::assertEquals($line, $exception->getLine());
-        self::assertEquals($context, $exception->getContext());
-        self::assertNull($exception->getPrevious());
+        $this->assertSame($message, $exception->getMessage());
+        $this->assertSame(0, $exception->getCode());
+        $this->assertSame($severity, $exception->getSeverity());
+        $this->assertSame($file, $exception->getFile());
+        $this->assertSame($line, $exception->getLine());
+        $this->assertSame($context, $exception->getContext());
+        $this->assertNull($exception->getPrevious());
     }
 
     public function test_jsonSerialize(): void
@@ -95,12 +95,12 @@ final class ErrorExceptionTest extends TestCase
         $exception = new ErrorException($message, $severity, __FILE__, __LINE__);
         $exception->setContext($context);
         $json = $exception->jsonSerialize();
-        self::assertEquals($exception::class, $json['class']);
-        self::assertEquals($message, $json['message']);
-        self::assertEquals(__FILE__, $json['file']);
-        self::assertIsInt($json['line']);
-        self::assertEquals($context, $json['context']);
-        self::assertEquals(
+        $this->assertSame($exception::class, $json['class']);
+        $this->assertSame($message, $json['message']);
+        $this->assertSame(__FILE__, $json['file']);
+        $this->assertIsInt($json['line']);
+        $this->assertSame($context, $json['context']);
+        $this->assertSame(
             ['class', 'message', 'severity', 'file', 'line', 'context'],
             array_keys($json),
         );

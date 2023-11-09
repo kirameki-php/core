@@ -12,9 +12,9 @@ trait WithContext
     /**
      * @inheritDoc
      */
-    public function getContext(): ?array
+    public function getContext(): array
     {
-        return $this->context;
+        return $this->context ?? [];
     }
 
     /**

@@ -14,17 +14,17 @@ final class UnreachableExceptionTest extends TestCase
     public function test_construct(): void
     {
         $exception = new UnreachableException();
-        self::assertInstanceOf(BaseException::class, $exception);
-        self::assertInstanceOf(Exceptionable::class, $exception);
+        $this->assertInstanceOf(BaseException::class, $exception);
+        $this->assertInstanceOf(Exceptionable::class, $exception);
         self::assertInstanceOf(JsonSerializable::class, $exception);
-        self::assertNull($exception->getContext());
+        self::assertSame([], $exception->getContext());
     }
 
     public function test_construct_with_context(): void
     {
         $exception = new UnreachableException('t', ['a' => 1, 'b' => 2]);
-        self::assertEquals('t', $exception->getMessage());
-        self::assertEquals(['a' => 1, 'b' => 2], $exception->getContext());
+        self::assertSame('t', $exception->getMessage());
+        self::assertSame(['a' => 1, 'b' => 2], $exception->getContext());
     }
 
     public function test_construct_with_full_construct(): void
@@ -34,16 +34,16 @@ final class UnreachableExceptionTest extends TestCase
         $code = random_int(0, 100);
         $prev = new RuntimeException('r');
         $exception = new UnreachableException($message, $context, $code, $prev);
-        self::assertEquals($message, $exception->getMessage());
-        self::assertEquals($code, $exception->getCode());
-        self::assertEquals($context, $exception->getContext());
-        self::assertEquals($prev, $exception->getPrevious());
+        self::assertSame($message, $exception->getMessage());
+        self::assertSame($code, $exception->getCode());
+        self::assertSame($context, $exception->getContext());
+        self::assertSame($prev, $exception->getPrevious());
     }
 
     public function test_construct_with_null_context(): void
     {
         $exception = new UnreachableException('t', null);
-        self::assertEquals('t', $exception->getMessage());
-        self::assertEquals(null, $exception->getContext());
+        self::assertSame('t', $exception->getMessage());
+        self::assertSame([], $exception->getContext());
     }
 }

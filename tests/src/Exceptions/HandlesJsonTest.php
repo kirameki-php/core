@@ -16,13 +16,13 @@ final class HandlesJsonTest extends TestCase
         $prev = new RuntimeException();
         $exception = new Exception($message, $context, $code, $prev);
         $json = $exception->jsonSerialize();
-        self::assertEquals($exception::class, $json['class']);
-        self::assertEquals($message, $json['message']);
-        self::assertEquals($code, $json['code']);
-        self::assertEquals(__FILE__, $json['file']);
-        self::assertIsInt($json['line']);
-        self::assertEquals($context, $json['context']);
-        self::assertEquals(
+        $this->assertSame($exception::class, $json['class']);
+        $this->assertSame($message, $json['message']);
+        $this->assertSame($code, $json['code']);
+        $this->assertSame(__FILE__, $json['file']);
+        $this->assertIsInt($json['line']);
+        $this->assertSame($context, $json['context']);
+        $this->assertSame(
             ['class', 'message', 'code', 'file', 'line', 'trace'],
             array_keys($json['previous']),
         );
@@ -32,11 +32,11 @@ final class HandlesJsonTest extends TestCase
     {
         $exception = new Exception();
         $json = $exception->jsonSerialize();
-        self::assertEquals($exception::class, $json['class']);
-        self::assertEquals('', $json['message']);
-        self::assertEquals(0, $json['code']);
-        self::assertEquals(__FILE__, $json['file']);
+        self::assertSame($exception::class, $json['class']);
+        self::assertSame('', $json['message']);
+        self::assertSame(0, $json['code']);
+        self::assertSame(__FILE__, $json['file']);
         self::assertIsInt($json['line']);
-        self::assertNull($json['context']);
+        self::assertSame([], $json['context']);
     }
 }
