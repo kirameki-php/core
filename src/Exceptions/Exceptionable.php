@@ -7,7 +7,7 @@ use Throwable;
 interface Exceptionable extends Throwable
 {
     /**
-     * @return array<string, mixed>|null
+     * @return array<string, mixed>
      */
-    public function getContext(): ?array;
+    public function getContext(): array;
 }

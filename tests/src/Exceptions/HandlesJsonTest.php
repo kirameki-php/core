@@ -32,11 +32,11 @@ final class HandlesJsonTest extends TestCase
     {
         $exception = new Exception();
         $json = $exception->jsonSerialize();
-        self::assertSame($exception::class, $json['class']);
-        self::assertSame('', $json['message']);
-        self::assertSame(0, $json['code']);
-        self::assertSame(__FILE__, $json['file']);
-        self::assertIsInt($json['line']);
-        self::assertSame([], $json['context']);
+        $this->assertSame($exception::class, $json['class']);
+        $this->assertSame('', $json['message']);
+        $this->assertSame(0, $json['code']);
+        $this->assertSame(__FILE__, $json['file']);
+        $this->assertIsInt($json['line']);
+        $this->assertSame([], $json['context']);
     }
 }
