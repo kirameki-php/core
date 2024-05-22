@@ -11,9 +11,7 @@ use Kirameki\Core\Exceptions\TypeMismatchException;
 use Kirameki\Core\Testing\TestCase;
 use function array_keys;
 use function array_search;
-use function dump;
 use function gethostname;
-use function var_dump;
 use const INF;
 use const NAN;
 
