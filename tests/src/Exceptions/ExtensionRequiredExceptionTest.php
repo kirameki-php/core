@@ -17,7 +17,7 @@ final class ExtensionRequiredExceptionTest extends TestCase
         $this->assertInstanceOf(LogicException::class, $exception);
         $this->assertInstanceOf(Exceptionable::class, $exception);
         $this->assertInstanceOf(JsonSerializable::class, $exception);
-        $this->assertNull($exception->getContext());
+        $this->assertSame([], $exception->getContext());
     }
 
     public function test_construct_with_context(): void
