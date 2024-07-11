@@ -9,7 +9,7 @@ use Throwable;
 use function is_a;
 use function usleep;
 
-class Retry
+class RetryHandler
 {
     /**
      * @var RetryStrategy
@@ -18,10 +18,16 @@ class Retry
 
     /**
      * @param class-string<Throwable>|iterable<array-key, class-string<Throwable>>|Closure(Throwable): bool $retryableThrowables
+     * Throwable classes that should be retried.
+     * @param int $maxAttempts
+     * Maximum number of attempts
      * @param RetryStrategy $strategy
+     * Strategy to use for calculating delays.
+     * Default: ExponentialBackoff
      */
     public function __construct(
         protected string|iterable|Closure $retryableThrowables,
+        protected int $maxAttempts,
         ?RetryStrategy $strategy = null,
     )
     {
@@ -31,25 +37,27 @@ class Retry
     /**
      * @template TResult
      * @param Closure(): TResult $call
-     * @param int $maxAttempts
      * @return TResult
      */
-    public function run(Closure $call, int $maxAttempts): mixed
+    public function run(Closure $call): mixed
     {
+        $strategy = $this->strategy;
         $attempts = 0;
-        start:
-        try {
-            $attempts++;
-            return $call();
-        } catch (Throwable $e) {
-            if ($attempts < $maxAttempts && $this->shouldRetry($e)) {
-                $delay = $this->strategy->calculateDelayMicroSeconds($attempts);
-                if ($delay > 0) {
-                    usleep($delay);
+        while(true) {
+            try {
+                $attempts++;
+                $result = $call();
+                $strategy->reset();
+                return $result;
+            } catch (Throwable $e) {
+                if ($this->shouldRetry($attempts, $e)) {
+                    $delay = $strategy->calculateDelayMilliSeconds($attempts);
+                    $this->sleep($delay);
+                    continue;
                 }
-                goto start;
+                $strategy->reset();
+                throw $e;
             }
-            throw $e;
         }
     }
 
@@ -57,8 +65,12 @@ class Retry
      * @param Throwable $e
      * @return bool
      */
-    protected function shouldRetry(Throwable $e): bool
+    protected function shouldRetry(int $attempts, Throwable $e): bool
     {
+        if ($attempts >= $this->maxAttempts) {
+            return false;
+        }
+
         $throwables = $this->retryableThrowables;
 
         if (is_string($throwables)) {
@@ -75,5 +87,15 @@ class Retry
         }
 
         return $throwables($e);
+    }
+
+    /**
+     * @param int $milliseconds
+     */
+    protected function sleep(int $milliseconds): void
+    {
+        if ($milliseconds > 0) {
+            usleep($milliseconds * 1000);
+        }
     }
 }

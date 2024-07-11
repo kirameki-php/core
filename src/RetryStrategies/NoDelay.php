@@ -2,15 +2,25 @@
 
 namespace Kirameki\Core\RetryStrategies;
 
+use Override;
+
 class NoDelay implements RetryStrategy
 {
     /**
-     * @param int $attempt
-     * @return int
+     * @inheritDoc
      */
-    public function calculateDelayMicroSeconds(int $attempt): int
+    #[Override]
+    public function calculateDelayMilliSeconds(int $attempt): int
     {
         return 0;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override]
+    public function reset(): void
+    {
     }
 }
 

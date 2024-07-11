@@ -2,41 +2,91 @@
 
 namespace Kirameki\Core\RetryStrategies;
 
+use Override;
+use function min;
 use function random_int;
 
 class ExponentialBackoff implements RetryStrategy
 {
     /**
-     * @param int $baseDelayMicroSeconds
-     * @param int $maxDelayMicroSeconds
-     * @param bool $jitter
+     * @var int
+     */
+    protected int $previousDelay = 0;
+
+    /**
+     * @param int $baseDelayMilliseconds
+     * @param int $maxDelayMilliseconds
+     * @param JitterAlgorithm $jitterAlgorithm
      */
     public function __construct(
-        protected int $baseDelayMicroSeconds = 10_000,
-        protected int $maxDelayMicroSeconds = 100_000,
-        protected bool $jitter = true,
+        protected int $baseDelayMilliseconds = 10,
+        protected int $maxDelayMilliseconds = 1_000,
+        protected JitterAlgorithm $jitterAlgorithm = JitterAlgorithm::Full,
     )
     {
     }
 
     /**
-     * @param int $attempt
-     * @return int
+     * @inheritDoc
      */
-    public function calculateDelayMicroSeconds(int $attempt): int
+    #[Override]
+    public function calculateDelayMilliSeconds(int $attempt): int
     {
-        $usleep = $this->baseDelayMicroSeconds * (2 ** $attempt);
-        $usleep = min($usleep, $this->maxDelayMicroSeconds);
-        return $this->addJitter($usleep);
+        $delay = $this->baseDelayMilliseconds * (2 ** $attempt);
+
+        $delay = match ($this->jitterAlgorithm) {
+            JitterAlgorithm::None => $this->applyNoJitter($delay),
+            JitterAlgorithm::Full => $this->applyFullJitter($delay),
+            JitterAlgorithm::Equal => $this->applyEqualJitter($delay),
+            JitterAlgorithm::Decorrelated => $this->applyDecorrelatedJitter(),
+        };
+
+        $this->previousDelay = $delay;
+
+        return $delay;
     }
 
     /**
      * @param int $delay
      * @return int
      */
-    protected function addJitter(int $delay): int
+    protected function applyNoJitter(int $delay): int
     {
-        return $this->jitter ? random_int(0, $delay) : $delay;
+        return min($delay, $this->maxDelayMilliseconds);
+    }
+
+    /**
+     * @param int $delay
+     * @return int
+     */
+    protected function applyFullJitter(int $delay): int
+    {
+        return random_int(0, min($delay, $this->maxDelayMilliseconds));
+    }
+
+    /**
+     * @param int $delay
+     * @return int
+     */
+    protected function applyEqualJitter(int $delay): int
+    {
+        $temp = min($delay, $this->maxDelayMilliseconds);
+        return $temp / 2 + random_int(0, $temp / 2);
+    }
+
+    protected function applyDecorrelatedJitter(): int
+    {
+        $delay = random_int($this->baseDelayMilliseconds, $this->previousDelay * 3);
+        return min($delay, $this->maxDelayMilliseconds);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    #[Override]
+    public function reset(): void
+    {
+        $this->previousDelay = 0;
     }
 }
 

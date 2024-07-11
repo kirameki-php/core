@@ -8,6 +8,11 @@ interface RetryStrategy
      * @param int $attempt
      * @return int
      */
-    public function calculateDelayMicroSeconds(int $attempt): int;
+    public function calculateDelayMilliSeconds(int $attempt): int;
+
+    /**
+     * @return void
+     */
+    public function reset(): void;
 }
 
