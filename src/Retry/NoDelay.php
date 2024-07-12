@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Kirameki\Core\RetryStrategies;
+namespace Kirameki\Core\Retry;
 
 use Override;
 
-class NoDelay implements RetryStrategy
+class NoDelay implements RetryPolicy
 {
     /**
      * @inheritDoc
      */
     #[Override]
-    public function calculateDelayMilliSeconds(int $attempt): int
+    public function calculateDelayMilliseconds(int $attempt): int
     {
         return 0;
     }
@@ -23,4 +23,3 @@ class NoDelay implements RetryStrategy
     {
     }
 }
-

@@ -1,18 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Kirameki\Core\RetryStrategies;
+namespace Kirameki\Core\Retry;
 
-interface RetryStrategy
+interface RetryPolicy
 {
     /**
      * @param int $attempt
      * @return int
      */
-    public function calculateDelayMilliSeconds(int $attempt): int;
+    public function calculateDelayMilliseconds(int $attempt): int;
 
     /**
      * @return void
      */
     public function reset(): void;
 }
-

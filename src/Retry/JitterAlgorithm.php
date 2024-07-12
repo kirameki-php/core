@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Kirameki\Core\RetryStrategies;
+namespace Kirameki\Core\Retry;
 
 enum JitterAlgorithm
 {

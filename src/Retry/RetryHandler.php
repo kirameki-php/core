@@ -1,10 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Kirameki\Core;
+namespace Kirameki\Core\Retry;
 
 use Closure;
-use Kirameki\Core\RetryStrategies\ExponentialBackoff;
-use Kirameki\Core\RetryStrategies\RetryStrategy;
 use Throwable;
 use function is_a;
 use function usleep;
@@ -12,23 +10,23 @@ use function usleep;
 class RetryHandler
 {
     /**
-     * @var RetryStrategy
+     * @var RetryPolicy
      */
-    protected RetryStrategy $strategy;
+    protected RetryPolicy $strategy;
 
     /**
-     * @param class-string<Throwable>|iterable<array-key, class-string<Throwable>>|Closure(Throwable): bool $retryableThrowables
+     * @param class-string<Throwable>|iterable<class-string<Throwable>>|Closure(Throwable): bool $retryableThrowables
      * Throwable classes that should be retried.
      * @param int $maxAttempts
      * Maximum number of attempts
-     * @param RetryStrategy $strategy
+     * @param RetryPolicy $strategy
      * Strategy to use for calculating delays.
      * Default: ExponentialBackoff
      */
     public function __construct(
         protected string|iterable|Closure $retryableThrowables,
         protected int $maxAttempts,
-        ?RetryStrategy $strategy = null,
+        ?RetryPolicy $strategy = null,
     )
     {
         $this->strategy = $strategy ?? new ExponentialBackoff();
@@ -51,7 +49,7 @@ class RetryHandler
                 return $result;
             } catch (Throwable $e) {
                 if ($this->shouldRetry($attempts, $e)) {
-                    $delay = $strategy->calculateDelayMilliSeconds($attempts);
+                    $delay = $strategy->calculateDelayMilliseconds($attempts);
                     $this->sleep($delay);
                     continue;
                 }
@@ -62,6 +60,7 @@ class RetryHandler
     }
 
     /**
+     * @param int $attempts
      * @param Throwable $e
      * @return bool
      */

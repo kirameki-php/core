@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Kirameki\Core\RetryStrategies;
+namespace Kirameki\Core\Retry;
 
 use Override;
 use function min;
 use function random_int;
 
-class ExponentialBackoff implements RetryStrategy
+class ExponentialBackoff implements RetryPolicy
 {
     /**
      * @var int
@@ -16,11 +16,13 @@ class ExponentialBackoff implements RetryStrategy
     /**
      * @param int $baseDelayMilliseconds
      * @param int $maxDelayMilliseconds
+     * @param float $backoffMultiplier
      * @param JitterAlgorithm $jitterAlgorithm
      */
     public function __construct(
         protected int $baseDelayMilliseconds = 10,
         protected int $maxDelayMilliseconds = 1_000,
+        protected float $backoffMultiplier = 2.0,
         protected JitterAlgorithm $jitterAlgorithm = JitterAlgorithm::Full,
     )
     {
@@ -30,9 +32,9 @@ class ExponentialBackoff implements RetryStrategy
      * @inheritDoc
      */
     #[Override]
-    public function calculateDelayMilliSeconds(int $attempt): int
+    public function calculateDelayMilliseconds(int $attempt): int
     {
-        $delay = $this->baseDelayMilliseconds * (2 ** $attempt);
+        $delay = $this->baseDelayMilliseconds * ($this->backoffMultiplier ** $attempt);
 
         $delay = match ($this->jitterAlgorithm) {
             JitterAlgorithm::None => $this->applyNoJitter($delay),
@@ -47,30 +49,30 @@ class ExponentialBackoff implements RetryStrategy
     }
 
     /**
-     * @param int $delay
+     * @param float $delay
      * @return int
      */
-    protected function applyNoJitter(int $delay): int
+    protected function applyNoJitter(float $delay): int
     {
-        return min($delay, $this->maxDelayMilliseconds);
+        return (int) min($delay, $this->maxDelayMilliseconds);
     }
 
     /**
-     * @param int $delay
+     * @param float $delay
      * @return int
      */
-    protected function applyFullJitter(int $delay): int
+    protected function applyFullJitter(float $delay): int
     {
-        return random_int(0, min($delay, $this->maxDelayMilliseconds));
+        return random_int(0, (int) min($delay, $this->maxDelayMilliseconds));
     }
 
     /**
-     * @param int $delay
+     * @param float $delay
      * @return int
      */
-    protected function applyEqualJitter(int $delay): int
+    protected function applyEqualJitter(float $delay): int
     {
-        $temp = min($delay, $this->maxDelayMilliseconds);
+        $temp = (int) min($delay, $this->maxDelayMilliseconds);
         return $temp / 2 + random_int(0, $temp / 2);
     }
 
@@ -89,4 +91,3 @@ class ExponentialBackoff implements RetryStrategy
         $this->previousDelay = 0;
     }
 }
-
