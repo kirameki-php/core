@@ -9,29 +9,29 @@ use function usleep;
 class Sleep
 {
     /**
-     * @param int $amount
+     * @param int $duration
      */
-    public function microseconds(int $amount): void
+    public function microseconds(int $duration): void
     {
-        if ($amount > 0) {
-            usleep($amount);
+        if ($duration > 0) {
+            usleep($duration);
         }
     }
 
     /**
-     * @param int $amount
+     * @param int $duration
      */
-    public function milliseconds(int $amount): void
+    public function milliseconds(int $duration): void
     {
-        $this->microseconds($amount * 1_000);
+        $this->microseconds($duration * 1_000);
     }
 
     /**
-     * @param int $amount
+     * @param int $duration
      */
-    public function seconds(int $amount): void
+    public function seconds(int $duration): void
     {
-        $this->microseconds($amount * 1_000_000);
+        $this->microseconds($duration * 1_000_000);
     }
 
     /**
