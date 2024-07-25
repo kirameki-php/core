@@ -35,11 +35,11 @@ class Sleep
     }
 
     /**
-     * @param DateTimeInterface $then
+     * @param DateTimeInterface $time
      */
-    public function until(DateTimeInterface $then): void
+    public function until(DateTimeInterface $time): void
     {
-        $thenSeconds = (float) $then->format('U.u');
+        $thenSeconds = (float) $time->format('U.u');
         $nowSeconds = microtime(true);
         $diffMicroSeconds = ($thenSeconds - $nowSeconds) * 1_000_000;
         $this->microseconds((int) $diffMicroSeconds);
