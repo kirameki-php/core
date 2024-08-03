@@ -45,19 +45,19 @@ class ExponentialBackoff
     public function run(int $maxAttempts, Closure $call): mixed
     {
         $previousDelay = 0;
-        $attempts = 0;
+        $attempts = 1;
         while(true) {
             try {
-                $attempts++;
                 return $call($attempts);
             } catch (Throwable $e) {
                 if ($this->shouldRetry($attempts, $maxAttempts, $e)) {
                     $delay = $this->calculateDelay($attempts, $previousDelay);
-                    $previousDelay = $delay;
                     $this->sleep($delay);
-                    continue;
+                    $attempts++;
+                    $previousDelay = $delay;
+                } else {
+                    throw $e;
                 }
-                throw $e;
             }
         }
     }
