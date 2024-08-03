@@ -3,6 +3,7 @@
 namespace Tests\Kirameki\Core\Testing;
 
 use Kirameki\Core\Exceptions\ErrorException;
+use Kirameki\Core\Exceptions\LogicException;
 use Kirameki\Core\Testing\TestCase;
 use const E_WARNING;
 
@@ -36,6 +37,12 @@ final class TestCaseTest extends TestCase
         $this->expectException(ErrorException::class);
         $arr = [];
         $arr[1];
+    }
+
+    public function test_throwOnError_nothing_thrown(): void
+    {
+        $this->throwOnError();
+        $this->assertTrue(true);
     }
 
     public function test_throwOnError_different_level(): void

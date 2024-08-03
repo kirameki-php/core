@@ -6,7 +6,6 @@ use DateTimeImmutable;
 use Kirameki\Core\Sleep;
 use Kirameki\Core\Testing\SleepMock;
 use Kirameki\Core\Testing\TestCase;
-use function dump;
 use function hrtime;
 
 final class SleepTest extends TestCase

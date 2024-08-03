@@ -1,7 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Kirameki\Core\Retry;
+namespace Kirameki\Core;
 
+/**
+ * Used in @see ExponentialBackoff
+ */
 enum JitterAlgorithm
 {
     case None;

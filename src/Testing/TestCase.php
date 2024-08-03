@@ -4,6 +4,7 @@ namespace Kirameki\Core\Testing;
 
 use Closure;
 use Kirameki\Core\Exceptions\ErrorException;
+use Kirameki\Core\Exceptions\LogicException;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use function array_map;
 use function restore_error_handler;
@@ -98,15 +99,15 @@ abstract class TestCase extends BaseTestCase
      */
     protected function throwOnError(int $level = E_ALL): void
     {
-        $restored = false;
-        set_error_handler(static function (int $severity, string $message, string $file, int $line) use (&$restored) {
+        $called = false;
+        set_error_handler(static function (int $severity, string $message, string $file, int $line) use (&$called) {
             restore_error_handler();
-            $restored = true;
+            $called = true;
             throw new ErrorException($message, $severity, $file, $line);
         }, $level);
 
-        $this->runBeforeTearDown(static function () use (&$restored) {
-            if (!$restored) {
+        $this->runBeforeTearDown(static function () use (&$called) {
+            if (!$called) {
                 restore_error_handler();
             }
         });
