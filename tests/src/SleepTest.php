@@ -6,6 +6,7 @@ use DateTimeImmutable;
 use Kirameki\Core\Sleep;
 use Kirameki\Core\Testing\SleepMock;
 use Kirameki\Core\Testing\TestCase;
+use function dump;
 use function hrtime;
 
 final class SleepTest extends TestCase
@@ -21,7 +22,9 @@ final class SleepTest extends TestCase
         $start = hrtime(true);
         $sleep->microseconds(1);
         $end = hrtime(true);
-        $this->assertGreaterThanOrEqual(1, $end - $start);
+        $diff = $end - $start;
+        $this->assertGreaterThanOrEqual(1_000, $diff);
+        $this->assertLessThan(1e7, $diff); // 10ms
     }
 
     public function test_seconds(): void
