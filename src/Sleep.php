@@ -3,19 +3,36 @@
 namespace Kirameki\Core;
 
 use DateTimeInterface;
+use function array_sum;
 use function microtime;
 use function usleep;
 
 class Sleep
 {
     /**
+     * Keeps track of all sleep durations in microseconds.
+     *
+     * @var list<int>
+     */
+    protected array $sleepHistory = [];
+
+    /**
+     * @param int $microseconds
+     */
+    protected function executeUsleep(int $microseconds): void
+    {
+        usleep($microseconds);
+    }
+
+    /**
      * @param int $duration
      */
     public function microseconds(int $duration): void
     {
         if ($duration > 0) {
-            usleep($duration);
+            $this->executeUsleep($duration);
         }
+        $this->sleepHistory[] = $duration;
     }
 
     /**
@@ -43,5 +60,21 @@ class Sleep
         $nowSeconds = microtime(true);
         $diffMicroSeconds = ($thenSeconds - $nowSeconds) * 1_000_000;
         $this->microseconds((int) $diffMicroSeconds);
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function getHistory(): array
+    {
+        return $this->sleepHistory;
+    }
+
+    /**
+     * @return void
+     */
+    public function clearHistory(): void
+    {
+        $this->sleepHistory = [];
     }
 }
