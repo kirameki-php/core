@@ -5,7 +5,7 @@ namespace Kirameki\Core;
 /**
  * Used in @see ExponentialBackoff
  */
-enum JitterAlgorithm
+enum JitterStrategy
 {
     case None;
     case Full;

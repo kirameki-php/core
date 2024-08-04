@@ -13,7 +13,7 @@ use function min;
 class ExponentialBackoff
 {
     /**
-     * @param class-string<Throwable>|iterable<class-string<Throwable>>|Closure(Throwable): bool $retryableExceptions
+     * @param class-string<Throwable>|iterable<class-string<Throwable>>|Closure(Throwable): bool $catchExceptions
      * Throwable classes that should be retried.
      * @param int $baseDelayMilliseconds
      * The base delay in milliseconds to start with.
@@ -21,17 +21,19 @@ class ExponentialBackoff
      * The maximum delay in milliseconds to cap at.
      * @param float $stepMultiplier
      * The multiplier to increase the delay by each attempt.
-     * @param JitterAlgorithm $jitterAlgorithm
+     * @param JitterStrategy $jitterStrategy
      * The jitter algorithm to use.
-     * @param ?Sleep $sleep
+     * @param Randomizer|null $randomizer
+     * The randomizer instance to use. Will default to a new instance if not provided.
+     * @param Sleep|null $sleep
      * The sleep instance to use. Will default to a new instance if not provided.
      */
     public function __construct(
-        protected string|iterable|Closure $retryableExceptions,
+        protected string|iterable|Closure $catchExceptions,
         protected int $baseDelayMilliseconds = 10,
         protected int $maxDelayMilliseconds = 1_000,
         protected float $stepMultiplier = 2.0,
-        protected JitterAlgorithm $jitterAlgorithm = JitterAlgorithm::Full,
+        protected JitterStrategy $jitterStrategy = JitterStrategy::Full,
         protected ?Randomizer $randomizer = null,
         protected ?Sleep $sleep = null,
     )
@@ -96,7 +98,7 @@ class ExponentialBackoff
             return false;
         }
 
-        $retryables = $this->retryableExceptions;
+        $retryables = $this->catchExceptions;
 
         if (is_string($retryables)) {
             $retryables = [$retryables];
@@ -127,11 +129,11 @@ class ExponentialBackoff
 
     protected function addJitter(int $delay, int $previousDelay): int
     {
-        return match ($this->jitterAlgorithm) {
-            JitterAlgorithm::None => $this->applyNoJitter($delay),
-            JitterAlgorithm::Full => $this->applyFullJitter($delay),
-            JitterAlgorithm::Equal => $this->applyEqualJitter($delay),
-            JitterAlgorithm::Decorrelated => $this->applyDecorrelatedJitter($previousDelay),
+        return match ($this->jitterStrategy) {
+            JitterStrategy::None => $this->applyNoJitter($delay),
+            JitterStrategy::Full => $this->applyFullJitter($delay),
+            JitterStrategy::Equal => $this->applyEqualJitter($delay),
+            JitterStrategy::Decorrelated => $this->applyDecorrelatedJitter($previousDelay),
         };
     }
 
