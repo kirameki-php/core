@@ -3,12 +3,12 @@
 namespace Kirameki\Core;
 
 use Closure;
+use Random\Randomizer;
 use Throwable;
 use function is_a;
 use function is_iterable;
 use function is_string;
 use function min;
-use function random_int;
 
 class ExponentialBackoff
 {
@@ -32,6 +32,7 @@ class ExponentialBackoff
         protected int $maxDelayMilliseconds = 1_000,
         protected float $stepMultiplier = 2.0,
         protected JitterAlgorithm $jitterAlgorithm = JitterAlgorithm::Full,
+        protected ?Randomizer $randomizer = null,
         protected ?Sleep $sleep = null,
     )
     {
@@ -60,6 +61,27 @@ class ExponentialBackoff
                 }
             }
         }
+    }
+
+    /**
+     * @param int $milliseconds
+     * @return void
+     */
+    protected function sleep(int $milliseconds): void
+    {
+        $this->sleep ??= new Sleep();
+        $this->sleep->milliseconds($milliseconds);
+    }
+
+    /**
+     * @param int $min
+     * @param int $max
+     * @return int
+     */
+    protected function random(int $min, int $max): int
+    {
+        $this->randomizer ??= new Randomizer();
+        return $this->randomizer->getInt($min, $max);
     }
 
     /**
@@ -103,15 +125,6 @@ class ExponentialBackoff
         return $this->addJitter((int) $delay, $previousDelay);
     }
 
-    /**
-     * @param int $milliseconds
-     */
-    protected function sleep(int $milliseconds): void
-    {
-        $this->sleep ??= new Sleep();
-        $this->sleep->milliseconds($milliseconds);
-    }
-
     protected function addJitter(int $delay, int $previousDelay): int
     {
         return match ($this->jitterAlgorithm) {
@@ -123,31 +136,31 @@ class ExponentialBackoff
     }
 
     /**
-     * @param float $delay
+     * @param int $delay
      * @return int
      */
-    protected function applyNoJitter(float $delay): int
+    protected function applyNoJitter(int $delay): int
     {
-        return (int) min($delay, $this->maxDelayMilliseconds);
+        return $this->clampDelay($delay);
     }
 
     /**
-     * @param float $delay
+     * @param int $delay
      * @return int
      */
-    protected function applyFullJitter(float $delay): int
+    protected function applyFullJitter(int $delay): int
     {
-        return random_int(0, (int) min($delay, $this->maxDelayMilliseconds));
+        return $this->random(0, $this->clampDelay($delay));
     }
 
     /**
-     * @param float $delay
+     * @param int $delay
      * @return int
      */
-    protected function applyEqualJitter(float $delay): int
+    protected function applyEqualJitter(int $delay): int
     {
-        $temp = (int) min($delay, $this->maxDelayMilliseconds);
-        return $temp / 2 + random_int(0, $temp / 2);
+        $temp = $this->clampDelay($delay);
+        return $temp / 2 + $this->random(0, $temp / 2);
     }
 
     /**
@@ -156,7 +169,16 @@ class ExponentialBackoff
      */
     protected function applyDecorrelatedJitter(int $previousDelay): int
     {
-        $delay = random_int($this->baseDelayMilliseconds, $previousDelay * 3);
+        $delay = $this->random($this->baseDelayMilliseconds, $previousDelay * 3);
+        return $this->clampDelay($delay);
+    }
+
+    /**
+     * @param int $delay
+     * @return int
+     */
+    protected function clampDelay(int $delay): int
+    {
         return min($delay, $this->maxDelayMilliseconds);
     }
 }
