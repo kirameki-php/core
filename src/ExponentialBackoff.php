@@ -3,12 +3,16 @@
 namespace Kirameki\Core;
 
 use Closure;
+use Kirameki\Core\Exceptions\LogicException;
 use Random\Randomizer;
 use Throwable;
+use function array_reverse;
+use function dump;
 use function is_a;
 use function is_iterable;
 use function is_string;
 use function min;
+use function sort;
 
 class ExponentialBackoff
 {
@@ -30,7 +34,7 @@ class ExponentialBackoff
      */
     public function __construct(
         protected string|iterable|Closure $catchExceptions,
-        protected int $baseDelayMilliseconds = 10,
+        protected int $baseDelayMilliseconds = 5,
         protected int $maxDelayMilliseconds = 1_000,
         protected float $stepMultiplier = 2.0,
         protected JitterStrategy $jitterStrategy = JitterStrategy::Full,
@@ -42,11 +46,16 @@ class ExponentialBackoff
 
     /**
      * @template TResult
+     * @param int $maxAttempts
      * @param Closure(int): TResult $call
      * @return TResult
      */
     public function run(int $maxAttempts, Closure $call): mixed
     {
+        if ($maxAttempts < 1) {
+            throw new LogicException('Max attempts must be at least 1.');
+        }
+
         $previousDelay = 0;
         $attempts = 1;
         while(true) {
@@ -171,7 +180,9 @@ class ExponentialBackoff
      */
     protected function applyDecorrelatedJitter(int $previousDelay): int
     {
-        $delay = $this->random($this->baseDelayMilliseconds, $previousDelay * 3);
+        $range = [$this->baseDelayMilliseconds, $previousDelay * 3];
+        sort($range);
+        $delay = $this->random(...$range);
         return $this->clampDelay($delay);
     }
 
