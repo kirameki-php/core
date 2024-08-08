@@ -13,7 +13,6 @@ use Kirameki\Core\Testing\SleepMock;
 use Kirameki\Core\Testing\TestCase;
 use Random\Engine\Xoshiro256StarStar;
 use Random\Randomizer;
-use function array_slice;
 use function array_splice;
 use function array_sum;
 
