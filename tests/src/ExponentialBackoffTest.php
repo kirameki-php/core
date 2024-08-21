@@ -15,6 +15,7 @@ use Random\Engine\Xoshiro256StarStar;
 use Random\Randomizer;
 use function array_splice;
 use function array_sum;
+use function random_int;
 
 final class ExponentialBackoffTest extends TestCase
 {
@@ -161,7 +162,7 @@ final class ExponentialBackoffTest extends TestCase
             }
             return 't';
         }));
-        $this->assertSame([10_000, 20_000, 40_000, 80_000], $sleep->getHistory());
+        $this->assertSame([5_000, 10_000, 20_000, 40_000], $sleep->getHistory());
     }
 
     public function test_run_multi_failure(): void
@@ -200,7 +201,7 @@ final class ExponentialBackoffTest extends TestCase
             }
             return 't';
         });
-        $this->assertSame([2_000, 4_000, 8_000], $sleep->getHistory());
+        $this->assertSame([1_000, 2_000, 4_000], $sleep->getHistory());
     }
 
     public function test_change_max_delay(): void
@@ -214,14 +215,14 @@ final class ExponentialBackoffTest extends TestCase
             sleep: $sleep,
         );
         $count = 0;
-        $backoff->run(4, function() use (&$count) {
+        $backoff->run(5, function() use (&$count) {
             $count++;
-            if ($count < 4) {
+            if ($count < 5) {
                 throw new RuntimeException('times: ' . $count);
             }
             return 't';
         });
-        $this->assertSame([8_000, 10_000, 10_000], $sleep->getHistory());
+        $this->assertSame([4_000, 8_000, 10_000, 10_000], $sleep->getHistory());
     }
 
     public function test_change_step_multiplier(): void
@@ -264,12 +265,12 @@ final class ExponentialBackoffTest extends TestCase
             }
             return 't';
         });
-        $this->assertSame([4_000, 3_000, 18_000], $sleep->getHistory());
+        $this->assertSame([4_000, 2_000, 17_000], $sleep->getHistory());
     }
 
     public function test_jitter_strategy_equal(): void
     {
-        $seed = 0;
+        $seed = 4;
         $randomizer = new Randomizer(new Xoshiro256StarStar($seed));
         $sleep = new SleepMock();
         $backoff = new ExponentialBackoff(
@@ -286,7 +287,7 @@ final class ExponentialBackoffTest extends TestCase
             }
             return 't';
         });
-        $this->assertSame([9_000, 12_000, 37_000], $sleep->getHistory());
+        $this->assertSame([3_000, 7_000, 19_000], $sleep->getHistory());
     }
 
     public function test_jitter_strategy_decorrelated(): void
@@ -331,7 +332,7 @@ final class ExponentialBackoffTest extends TestCase
                 return 't';
             });
             $history = $sleep->getHistory();
-            $this->assertSame([10_000, 20_000, 40_000], array_splice($history, -3, 3));
+            $this->assertSame([5_000, 1_0000, 2_0000], array_splice($history, -3, 3));
             $this->assertCount(3 * $i, $history);
         }
     }

@@ -63,7 +63,7 @@ class ExponentialBackoff
                 return $call($attempts);
             } catch (Throwable $e) {
                 if ($this->canRetry($attempts, $maxAttempts, $e)) {
-                    $delay = $this->calculateDelay($attempts, $previousDelay);
+                    $delay = $this->calculateDelay($attempts - 1, $previousDelay);
                     $this->sleep($delay);
                     $attempts++;
                     $previousDelay = $delay;
@@ -126,13 +126,13 @@ class ExponentialBackoff
     }
 
     /**
-     * @param int $attempt
+     * @param int $retries
      * @param int $previousDelay
      * @return int
      */
-    public function calculateDelay(int $attempt, int $previousDelay): int
+    public function calculateDelay(int $retries, int $previousDelay): int
     {
-        $delay = $this->baseDelayMilliseconds * ($this->stepMultiplier ** $attempt);
+        $delay = $this->baseDelayMilliseconds * ($this->stepMultiplier ** $retries);
         return $this->addJitter((int) $delay, $previousDelay);
     }
 
@@ -171,7 +171,8 @@ class ExponentialBackoff
     protected function applyEqualJitter(int $delay): int
     {
         $temp = $this->clampDelay($delay);
-        return $temp / 2 + $this->random(0, $temp / 2);
+        $half = (int)($temp / 2);
+        return $half + $this->random(0, $half);
     }
 
     /**
