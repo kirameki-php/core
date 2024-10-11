@@ -3,7 +3,6 @@
 namespace Kirameki\Core;
 
 use DateTimeInterface;
-use function array_sum;
 use function microtime;
 use function usleep;
 
