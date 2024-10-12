@@ -76,7 +76,7 @@ class Stopwatch
     /**
      * @return int
      */
-    public function getElapsedNanoSeconds(): int
+    public function getElapsedNanoseconds(): int
     {
         return $this->isRunning()
             ? $this->elapsed + (hrtime(true) - $this->start)
@@ -86,8 +86,8 @@ class Stopwatch
     /**
      * @return float
      */
-    public function getElapsedMilliSeconds(): float
+    public function getElapsedMilliseconds(): float
     {
-        return $this->getElapsedNanoSeconds() / 1_000_000;
+        return $this->getElapsedNanoseconds() / 1_000_000;
     }
 }

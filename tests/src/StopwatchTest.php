@@ -12,11 +12,11 @@ final class StopwatchTest extends TestCase
     {
         $stopwatch = new Stopwatch();
         $stopwatch->start();
-        $this->assertGreaterThan(0, $stopwatch->getElapsedNanoSeconds());
+        $this->assertGreaterThan(0, $stopwatch->getElapsedNanoseconds());
         $stopwatch->stop()->start();
-        $this->assertGreaterThan(0, $stopwatch->getElapsedNanoSeconds());
+        $this->assertGreaterThan(0, $stopwatch->getElapsedNanoseconds());
         $stopwatch->reset()->start();
-        $this->assertGreaterThan(0, $stopwatch->getElapsedNanoSeconds());
+        $this->assertGreaterThan(0, $stopwatch->getElapsedNanoseconds());
     }
 
     public function test_start_when_running(): void
@@ -31,9 +31,9 @@ final class StopwatchTest extends TestCase
     {
         $stopwatch = new Stopwatch();
         $stopwatch->start()->stop();
-        $this->assertGreaterThan(0, $prev = $stopwatch->getElapsedNanoSeconds());
+        $this->assertGreaterThan(0, $prev = $stopwatch->getElapsedNanoseconds());
         usleep(1000);
-        $this->assertSame($prev, $stopwatch->getElapsedNanoSeconds());
+        $this->assertSame($prev, $stopwatch->getElapsedNanoseconds());
     }
 
     public function test_stop_when_not_running(): void
@@ -47,22 +47,22 @@ final class StopwatchTest extends TestCase
     {
         $stopwatch = new Stopwatch();
         $stopwatch->reset();
-        $this->assertSame(0, $stopwatch->getElapsedNanoSeconds());
+        $this->assertSame(0, $stopwatch->getElapsedNanoseconds());
         $stopwatch->start()->reset();
-        $this->assertSame(0, $stopwatch->getElapsedNanoSeconds());
+        $this->assertSame(0, $stopwatch->getElapsedNanoseconds());
         $stopwatch->start()->stop()->reset();
-        $this->assertSame(0, $stopwatch->getElapsedNanoSeconds());
+        $this->assertSame(0, $stopwatch->getElapsedNanoseconds());
     }
 
     public function test_restart(): void
     {
         $stopwatch = new Stopwatch();
         $stopwatch->restart();
-        $this->assertGreaterThan(0, $stopwatch->getElapsedNanoSeconds());
+        $this->assertGreaterThan(0, $stopwatch->getElapsedNanoseconds());
         $stopwatch->stop()->restart();
-        $this->assertGreaterThan(0, $stopwatch->getElapsedNanoSeconds());
+        $this->assertGreaterThan(0, $stopwatch->getElapsedNanoseconds());
         $stopwatch->reset()->restart();
-        $this->assertGreaterThan(0, $stopwatch->getElapsedNanoSeconds());
+        $this->assertGreaterThan(0, $stopwatch->getElapsedNanoseconds());
     }
 
     public function test_isRunning(): void
@@ -79,33 +79,33 @@ final class StopwatchTest extends TestCase
         $this->assertTrue($stopwatch->isRunning());
     }
 
-    public function test_getElapsedNanoSeconds(): void
+    public function test_getElapsedNanoseconds(): void
     {
         $stopwatch = new Stopwatch();
-        $this->assertSame(0, $stopwatch->getElapsedNanoSeconds());
+        $this->assertSame(0, $stopwatch->getElapsedNanoseconds());
         $stopwatch->start();
-        $this->assertGreaterThan(0, $prev = $stopwatch->getElapsedNanoSeconds());
+        $this->assertGreaterThan(0, $prev = $stopwatch->getElapsedNanoseconds());
         $stopwatch->stop();
-        $this->assertGreaterThan($prev, $stopwatch->getElapsedNanoSeconds());
+        $this->assertGreaterThan($prev, $stopwatch->getElapsedNanoseconds());
         $stopwatch->reset();
-        $this->assertSame(0, $stopwatch->getElapsedNanoSeconds());
+        $this->assertSame(0, $stopwatch->getElapsedNanoseconds());
         $stopwatch->start();
-        $this->assertGreaterThan(0, $stopwatch->getElapsedNanoSeconds());
+        $this->assertGreaterThan(0, $stopwatch->getElapsedNanoseconds());
         $stopwatch->restart();
-        $this->assertGreaterThan(0, $stopwatch->getElapsedNanoSeconds());
+        $this->assertGreaterThan(0, $stopwatch->getElapsedNanoseconds());
     }
 
-    public function test_getElapsedMilliSeconds(): void
+    public function test_getElapsedMilliseconds(): void
     {
         $stopwatch = new Stopwatch();
-        $this->assertSame(0.0, $stopwatch->getElapsedMilliSeconds());
+        $this->assertSame(0.0, $stopwatch->getElapsedMilliseconds());
         $stopwatch->start();
         usleep(1000);
         $stopwatch->stop();
-        $this->assertGreaterThan(1, $stopwatch->getElapsedMilliSeconds());
+        $this->assertGreaterThan(1, $stopwatch->getElapsedMilliseconds());
         $stopwatch->start();
         usleep(1000);
         $stopwatch->stop();
-        $this->assertGreaterThan(2, $stopwatch->getElapsedMilliSeconds());
+        $this->assertGreaterThan(2, $stopwatch->getElapsedMilliseconds());
     }
 }
