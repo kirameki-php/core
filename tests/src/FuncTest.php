@@ -22,6 +22,12 @@ final class FuncTest extends TestCase
         $this->assertNull(Func::null()());
     }
 
+    public function test_notNull(): void
+    {
+        $this->assertTrue(Func::notNull()(1));
+        $this->assertFalse(Func::notNull()(null));
+    }
+
     public function test_match(): void
     {
         $matcher = Func::match('foo');

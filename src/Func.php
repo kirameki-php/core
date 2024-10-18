@@ -33,6 +33,14 @@ final class Func extends StaticClass
     /**
      * @return Closure(mixed): bool
      */
+    public static function notNull(): Closure
+    {
+        return static fn(mixed $v): bool => $v !== null;
+    }
+
+    /**
+     * @return Closure(mixed): bool
+     */
     public static function match(mixed $value): Closure
     {
         return static fn(mixed $v): bool => $v === $value;
