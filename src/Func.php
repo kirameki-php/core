@@ -41,7 +41,7 @@ final class Func extends StaticClass
     /**
      * @return Closure(mixed): bool
      */
-    public static function match(mixed $value): Closure
+    public static function same(mixed $value): Closure
     {
         return static fn(mixed $v): bool => $v === $value;
     }
@@ -49,7 +49,7 @@ final class Func extends StaticClass
     /**
      * @return Closure(mixed): bool
      */
-    public static function notMatch(mixed $value): Closure
+    public static function notSame(mixed $value): Closure
     {
         return static fn(mixed $v): bool => $v !== $value;
     }

@@ -28,18 +28,18 @@ final class FuncTest extends TestCase
         $this->assertFalse(Func::notNull()(null));
     }
 
-    public function test_match(): void
+    public function test_same(): void
     {
-        $matcher = Func::match('foo');
-        $this->assertTrue($matcher('foo'));
-        $this->assertFalse($matcher('bar'));
+        $comparator = Func::same('foo');
+        $this->assertTrue($comparator('foo'));
+        $this->assertFalse($comparator('bar'));
     }
 
-    public function test_notMatch(): void
+    public function test_notSame(): void
     {
-        $matcher = Func::notMatch('foo');
-        $this->assertFalse($matcher('foo'));
-        $this->assertTrue($matcher('bar'));
+        $comparator = Func::notSame('foo');
+        $this->assertFalse($comparator('foo'));
+        $this->assertTrue($comparator('bar'));
     }
 
     public function test_spaceship(): void
