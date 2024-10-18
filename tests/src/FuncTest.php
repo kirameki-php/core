@@ -35,4 +35,12 @@ final class FuncTest extends TestCase
         $this->assertFalse($matcher('foo'));
         $this->assertTrue($matcher('bar'));
     }
+
+    public function test_spaceship(): void
+    {
+        $comparator = Func::spaceship();
+        $this->assertSame(-1, $comparator(1, 2));
+        $this->assertSame(0, $comparator(2, 2));
+        $this->assertSame(1, $comparator(2, 1));
+    }
 }

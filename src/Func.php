@@ -45,4 +45,12 @@ final class Func extends StaticClass
     {
         return static fn(mixed $v): bool => $v !== $value;
     }
+
+    /**
+     * @return Closure(mixed, mixed): int
+     */
+    public static function spaceship(): Closure
+    {
+        return static fn(mixed $a, mixed $b): int => $a <=> $b;
+    }
 }
