@@ -10,7 +10,7 @@
   "require-dev": {
     "ext-posix": "*",
     "kirameki/dumper": "dev-main",
-    "phpstan/phpstan": "~1",
+    "phpstan/phpstan": "~2",
     "phpunit/phpunit": "~10"
   },
   "autoload": {
