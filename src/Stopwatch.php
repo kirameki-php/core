@@ -20,11 +20,34 @@ class Stopwatch
     protected ?int $start = null;
 
     /**
+     * @var bool
+     */
+    public bool $isRunning {
+        get => $this->start !== null;
+    }
+
+    /**
+     * @var int
+     */
+    public int $elapsedInNanoseconds {
+        get => $this->isRunning
+            ? $this->elapsed + (hrtime(true) - $this->start)
+            : $this->elapsed;
+    }
+
+    /**
+     * @var float
+     */
+    public float $elapsedInMilliseconds {
+        get => $this->elapsedInNanoseconds / 1_000_000;
+    }
+
+    /**
      * @return $this
      */
     public function start(): static
     {
-        if ($this->isRunning()) {
+        if ($this->isRunning) {
             throw new LogicException('Stopwatch is already running.');
         }
 
@@ -37,7 +60,7 @@ class Stopwatch
      */
     public function stop(): static
     {
-        if (!$this->isRunning()) {
+        if (!$this->isRunning) {
             throw new LogicException('Stopwatch is not running.');
         }
 
@@ -63,31 +86,5 @@ class Stopwatch
     {
         $this->reset();
         $this->start();
-    }
-
-    /**
-     * @return bool
-     */
-    public function isRunning(): bool
-    {
-        return $this->start !== null;
-    }
-
-    /**
-     * @return int
-     */
-    public function getElapsedNanoseconds(): int
-    {
-        return $this->isRunning()
-            ? $this->elapsed + (hrtime(true) - $this->start)
-            : $this->elapsed;
-    }
-
-    /**
-     * @return float
-     */
-    public function getElapsedMilliseconds(): float
-    {
-        return $this->getElapsedNanoseconds() / 1_000_000;
     }
 }

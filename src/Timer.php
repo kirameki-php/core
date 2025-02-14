@@ -31,6 +31,51 @@ class Timer
     protected bool $completed = false;
 
     /**
+     * @var bool
+     */
+    public bool $isRunning {
+        get => $this->start !== null && !$this->isElapsed;
+    }
+
+    /**
+     * @var bool
+     */
+    public bool $isElapsed {
+        get => $this->remainingInNanoseconds === 0;
+    }
+
+    /**
+     * @var int
+     */
+    public int $remainingInNanoseconds {
+        get {
+            if ($this->completed) {
+                return 0;
+            }
+
+            if ($this->start === null) {
+                return $this->duration - $this->elapsed;
+            }
+
+            $elapsed = hrtime(true) - ($this->elapsed + ($this->start));
+            $remaining = max(0, $this->duration - $elapsed);
+
+            if ($remaining === 0) {
+                $this->completed = true;
+            }
+
+            return (int) $remaining;
+        }
+    }
+
+    /**
+     * @var int
+     */
+    public int $remainingInMilliseconds {
+        get => (int) ($this->remainingInNanoseconds / 1_000_000);
+    }
+
+    /**
      * @param int $milliseconds
      */
     public function __construct(int $milliseconds)
@@ -84,52 +129,5 @@ class Timer
         $this->reset();
         $this->start();
         return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getRemainingNanoseconds(): int
-    {
-        if ($this->completed) {
-            return 0;
-        }
-
-        if ($this->start === null) {
-            return $this->duration - $this->elapsed;
-        }
-
-        $elapsed = hrtime(true) - ($this->elapsed + ($this->start));
-        $remaining = max(0, $this->duration - $elapsed);
-
-        if ($remaining === 0) {
-            $this->completed = true;
-        }
-
-        return (int) $remaining;
-    }
-
-    /**
-     * @return int
-     */
-    public function getRemainingMilliseconds(): int
-    {
-        return (int) ($this->getRemainingNanoseconds() / 1_000_000);
-    }
-
-    /**
-     * @return bool
-     */
-    public function isRunning(): bool
-    {
-        return $this->start !== null && !$this->isElapsed();
-    }
-
-    /**
-     * @return bool
-     */
-    public function isElapsed(): bool
-    {
-        return $this->getRemainingMilliseconds() === 0;
     }
 }

@@ -33,11 +33,11 @@ class ExponentialBackoff
      * The sleep instance to use. Will default to a new instance if not provided.
      */
     public function __construct(
-        protected string|iterable|Closure $catchExceptions,
-        protected int $baseDelayMilliseconds = 5,
-        protected int $maxDelayMilliseconds = 1_000,
-        protected float $stepMultiplier = 2.0,
-        protected JitterStrategy $jitterStrategy = JitterStrategy::Full,
+        protected readonly string|iterable|Closure $catchExceptions,
+        protected readonly int $baseDelayMilliseconds = 5,
+        protected readonly int $maxDelayMilliseconds = 1_000,
+        protected readonly float $stepMultiplier = 2.0,
+        protected readonly JitterStrategy $jitterStrategy = JitterStrategy::Full,
         protected ?Randomizer $randomizer = null,
         protected ?Sleep $sleep = null,
     )

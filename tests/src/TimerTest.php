@@ -11,10 +11,10 @@ final class TimerTest extends TestCase
     public function test_start(): void
     {
         $timer = new Timer(100);
-        $this->assertSame(100, $timer->getRemainingMilliseconds());
+        $this->assertSame(100, $timer->remainingInMilliseconds);
         $timer->start();
-        $this->assertGreaterThan(0, $timer->getRemainingMilliseconds());
-        $this->assertLessThan(100, $timer->getRemainingMilliseconds());
+        $this->assertGreaterThan(0, $timer->remainingInMilliseconds);
+        $this->assertLessThan(100, $timer->remainingInMilliseconds);
     }
 
     public function test_start_when_running(): void
@@ -29,10 +29,10 @@ final class TimerTest extends TestCase
     {
         $timer = new Timer(100);
         $timer->start();
-        $this->assertGreaterThan(0, $prev = $timer->getRemainingMilliseconds());
+        $this->assertGreaterThan(0, $prev = $timer->remainingInMilliseconds);
         $this->assertLessThan(100, $prev);
         usleep(1000);
-        $this->assertLessThan($prev, $timer->getRemainingMilliseconds());
+        $this->assertLessThan($prev, $timer->remainingInMilliseconds);
     }
 
     public function test_stop_when_not_running(): void
@@ -46,64 +46,64 @@ final class TimerTest extends TestCase
     {
         $timer = new Timer(100);
         $timer->reset();
-        $this->assertSame(100, $timer->getRemainingMilliseconds());
+        $this->assertSame(100, $timer->remainingInMilliseconds);
         $timer->start()->reset();
-        $this->assertSame(100, $timer->getRemainingMilliseconds());
+        $this->assertSame(100, $timer->remainingInMilliseconds);
         $timer->start()->stop()->reset();
-        $this->assertSame(100, $timer->getRemainingMilliseconds());
+        $this->assertSame(100, $timer->remainingInMilliseconds);
     }
 
     public function test_restart(): void
     {
         $timer = new Timer(100);
         $timer->start();
-        $this->assertGreaterThan(0, $timer->getRemainingMilliseconds());
+        $this->assertGreaterThan(0, $timer->remainingInMilliseconds);
         $timer->restart();
-        $this->assertGreaterThan(0, $timer->getRemainingMilliseconds());
+        $this->assertGreaterThan(0, $timer->remainingInMilliseconds);
     }
 
     public function test_isElapsed(): void
     {
         $timer = new Timer(100);
-        $this->assertFalse($timer->isElapsed());
+        $this->assertFalse($timer->isElapsed);
         $timer->start();
-        $this->assertFalse($timer->isElapsed());
+        $this->assertFalse($timer->isElapsed);
         usleep(100_000);
-        $this->assertTrue($timer->isElapsed());
+        $this->assertTrue($timer->isElapsed);
     }
 
     public function test_isRunning(): void
     {
         $timer = new Timer(100);
-        $this->assertFalse($timer->isRunning());
+        $this->assertFalse($timer->isRunning);
         $timer->start();
-        $this->assertTrue($timer->isRunning());
+        $this->assertTrue($timer->isRunning);
         $timer->stop();
-        $this->assertFalse($timer->isRunning());
+        $this->assertFalse($timer->isRunning);
         $timer->reset();
-        $this->assertFalse($timer->isRunning());
+        $this->assertFalse($timer->isRunning);
         $timer->restart();
-        $this->assertTrue($timer->isRunning());
+        $this->assertTrue($timer->isRunning);
     }
 
     public function test_getRemainingNanoseconds(): void
     {
         $timer = new Timer(100);
-        $this->assertSame(100_000_000, $timer->getRemainingNanoseconds());
+        $this->assertSame(100_000_000, $timer->remainingInNanoseconds);
         $timer->start();
-        $this->assertGreaterThan(0, $timer->getRemainingNanoseconds());
-        $this->assertLessThan(100_000_000, $timer->getRemainingNanoseconds());
+        $this->assertGreaterThan(0, $timer->remainingInNanoseconds);
+        $this->assertLessThan(100_000_000, $timer->remainingInNanoseconds);
         usleep(100_000);
-        $this->assertLessThan(100_000_000, $timer->getRemainingNanoseconds());
-        $this->assertLessThan(100_000_000, $timer->getRemainingNanoseconds());
+        $this->assertLessThan(100_000_000, $timer->remainingInNanoseconds);
+        $this->assertLessThan(100_000_000, $timer->remainingInNanoseconds);
     }
 
     public function test_getRemainingMilliseconds(): void
     {
         $timer = new Timer(100);
-        $this->assertSame(100, $timer->getRemainingMilliseconds());
+        $this->assertSame(100, $timer->remainingInMilliseconds);
         $timer->start();
-        $this->assertGreaterThan(0, $timer->getRemainingMilliseconds());
-        $this->assertLessThan(100, $timer->getRemainingMilliseconds());
+        $this->assertGreaterThan(0, $timer->remainingInMilliseconds);
+        $this->assertLessThan(100, $timer->remainingInMilliseconds);
     }
 }
