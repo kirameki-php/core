@@ -6,8 +6,6 @@ use Closure;
 use Kirameki\Core\Exceptions\LogicException;
 use Random\Randomizer;
 use Throwable;
-use function array_reverse;
-use function dump;
 use function is_a;
 use function is_iterable;
 use function is_string;
